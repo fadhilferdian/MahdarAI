@@ -24,7 +24,7 @@ export default function Header() {
             "من الصوت أو المستند إلى المحضر الذكي"
           </p>
           <nav className="flex items-center space-x-2">
-            {loading ? <Skeleton className="h-10 w-24" /> : user ? <UserNav /> : <LoginButton />}
+            {loading ? <Skeleton className="h-10 w-10 rounded-full" /> : user ? <UserNav /> : <LoginButton />}
           </nav>
         </div>
       </div>
