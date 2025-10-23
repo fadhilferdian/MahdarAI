@@ -96,25 +96,18 @@ export default function MainPanel() {
     setOriginalFilename('');
   };
 
+  const isProcessing = appState === 'processingFile' || appState === 'summarizing';
+
   return (
     <div className="container py-8">
       <div className="flex flex-col items-center space-y-8">
-        {appState === 'idle' && (
+        {(appState === 'idle' || appState === 'processingFile') && (
           <FileUploader
             onProcessingStart={handleProcessingStart}
             onProcessingSuccess={handleProcessingSuccess}
             onProcessingError={handleProcessingError}
-            disabled={appState !== 'idle'}
+            disabled={appState === 'processingFile'}
           />
-        )}
-
-        {(appState === 'processingFile') && (
-            <FileUploader
-                onProcessingStart={() => {}}
-                onProcessingSuccess={() => {}}
-                onProcessingError={() => {}}
-                disabled={true}
-            />
         )}
 
         {(appState === 'editing' || appState === 'summarizing') && (
