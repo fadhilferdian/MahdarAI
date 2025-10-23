@@ -9,6 +9,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {googleAI} from '@genkit-ai/google-genai';
 
 const TranscribeAudioAndExtractTextInputSchema = z.object({
   fileDataUri: z
@@ -22,7 +23,7 @@ export type TranscribeAudioAndExtractTextInput = z.infer<typeof TranscribeAudioA
 
 const TranscribeAudioAndExtractTextOutputSchema = z.object({
   extractedText: z.string().describe('The extracted text from the file.'),
-  language: z.string().describe('The detected language of the text (Arabic or Indonesian).'),
+  language: z.enum(['id', 'ar']).describe('The detected language of the text (Arabic or Indonesian).'),
 });
 export type TranscribeAudioAndExtractTextOutput = z.infer<typeof TranscribeAudioAndExtractTextOutputSchema>;
 
@@ -36,12 +37,13 @@ const transcribeAudioAndExtractTextPrompt = ai.definePrompt({
   name: 'transcribeAudioAndExtractTextPrompt',
   input: {schema: TranscribeAudioAndExtractTextInputSchema},
   output: {schema: TranscribeAudioAndExtractTextOutputSchema},
+  model: googleAI.model('gemini-2.5-flash'),
   prompt: `You are a helpful assistant designed to extract text from files and detect the language.
 
   Extract the text from the file and detect whether the language is Arabic or Indonesian. Return the extracted text and the detected language.
 
   Filename: {{{filename}}}
-  File Data: {{fileDataUri}}`,
+  File Data: {{media url=fileDataUri}}`,
 });
 
 const transcribeAudioAndExtractTextFlow = ai.defineFlow(
