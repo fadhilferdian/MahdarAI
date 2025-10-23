@@ -13,6 +13,17 @@ type FileUploaderProps = {
   disabled: boolean;
 };
 
+function fileToDataURI(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      resolve(reader.result as string);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export function FileUploader({
   onProcessingStart,
   onProcessingSuccess,
@@ -33,20 +44,26 @@ export function FileUploader({
     setError(null);
     setFileName(file.name);
 
-    const formData = new FormData();
-    formData.append('file', file);
+    try {
+      const dataUri = await fileToDataURI(file);
 
-    const { transcribeAndExtract } = await import('@/lib/actions');
-    const result = await transcribeAndExtract(formData);
+      const { transcribeAndExtract } = await import('@/lib/actions');
+      const result = await transcribeAndExtract(dataUri, file.name);
 
-    if (result.success && result.data) {
-      onProcessingSuccess(result.data, file.name);
-    } else {
-      const errorMessage = result.error || 'An unknown error occurred.';
-      setError(errorMessage);
-      onProcessingError(errorMessage);
+      if (result.success && result.data) {
+        onProcessingSuccess(result.data, file.name);
+      } else {
+        const errorMessage = result.error || 'An unknown error occurred.';
+        setError(errorMessage);
+        onProcessingError(errorMessage);
+      }
+    } catch (e: any) {
+        const errorMessage = e.message || 'Failed to read the file.';
+        setError(errorMessage);
+        onProcessingError(errorMessage);
+    } finally {
+        setIsProcessing(false);
     }
-    setIsProcessing(false);
   };
 
   const handleDragEnter = (e: DragEvent<HTMLDivElement>) => {

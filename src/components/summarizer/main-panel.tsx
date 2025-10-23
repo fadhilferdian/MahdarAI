@@ -74,7 +74,14 @@ export default function MainPanel() {
 
   const handleSaveToHistory = async () => {
     if (!summary) return { success: false, error: 'No summary to save.' };
-    if (!user) return { success: false, error: 'You must be logged in to save history.' };
+    if (!user) {
+        toast({
+            title: 'Not Logged In',
+            description: 'You must be logged in to save history.',
+            variant: 'destructive'
+        });
+        return { success: false, error: 'You must be logged in to save history.' };
+    }
 
     setIsSaving(true);
     const result = await saveHistory(summary, originalFilename, user.uid);

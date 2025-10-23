@@ -13,38 +13,16 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import type { SummarizeMeetingMinutesOutput } from '@/lib/types';
 
-function fileToDataURI(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      resolve(reader.result as string);
-    };
-    reader.onerror = reject;
-    // This is a server action, but FileReader is a browser API.
-    // To make this work, we need a workaround. A better approach for production would be
-    // to upload to a bucket and pass the URL. For this exercise, we will assume
-    // the client converts it to a data URI before calling the action.
-    // However, since we must use FormData, we'll convert the array buffer.
-    file.arrayBuffer().then(buffer => {
-        const base64 = Buffer.from(buffer).toString('base64');
-        resolve(`data:${file.type};base64,${base64}`);
-    });
-  });
-}
-
-export async function transcribeAndExtract(formData: FormData) {
+export async function transcribeAndExtract(dataUri: string, filename: string) {
   'use server';
   try {
-    const file = formData.get('file') as File;
-    if (!file) {
-      throw new Error('No file uploaded.');
+    if (!dataUri) {
+      throw new Error('No data URI provided.');
     }
-
-    const dataUri = await fileToDataURI(file);
 
     const input: TranscribeAudioAndExtractTextInput = {
       fileDataUri: dataUri,
-      filename: file.name,
+      filename: filename,
     };
 
     const result = await transcribeAudioAndExtractText(input);
@@ -56,7 +34,8 @@ export async function transcribeAndExtract(formData: FormData) {
     return { success: true, data: result, error: null };
   } catch (error) {
     console.error('Error in transcribeAndExtract:', error);
-    return { success: false, data: null, error: (error as Error).message };
+    const errorMessage = error instanceof Error ? error.message : 'An unknown server error occurred.';
+    return { success: false, data: null, error: errorMessage };
   }
 }
 
@@ -77,7 +56,8 @@ export async function summarize(
     return { success: true, data: result, error: null };
   } catch (error) {
     console.error('Error in summarize:', error);
-    return { success: false, data: null, error: (error as Error).message };
+    const errorMessage = error instanceof Error ? error.message : 'An unknown server error occurred.';
+    return { success: false, data: null, error: errorMessage };
   }
 }
 
