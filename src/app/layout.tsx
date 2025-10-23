@@ -27,7 +27,7 @@ export default function RootLayout({
       <body className="font-body antialiased min-h-screen flex flex-col">
         <AuthProvider>
           <Header />
-          <main className="flex-grow">{children}</main>
+          <main className="flex-grow flex items-center justify-center">{children}</main>
           <Toaster />
         </AuthProvider>
       </body>
