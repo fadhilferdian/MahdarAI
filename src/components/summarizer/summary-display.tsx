@@ -78,7 +78,7 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage }: Su
           <Separator />
           <CardContent className="p-6" dir={targetLanguage === 'ar' ? 'rtl' : 'ltr'}>
             <ScrollArea className="h-[500px]">
-              <div className={`prose prose-sm dark:prose-invert max-w-none ${targetLanguage === 'ar' ? 'font-body text-right' : ''}`}>
+              <div className={`prose prose-sm dark:prose-invert max-w-none ${targetLanguage === 'ar' ? 'font-arabic text-right' : ''}`}>
                  <p className="whitespace-pre-wrap">{summary.summary}</p>
               </div>
             </ScrollArea>
