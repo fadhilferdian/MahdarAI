@@ -51,56 +51,64 @@ export function SummaryDisplay({ summary, originalFilename, onSave, isSaving }: 
   }
 
   const parseSummary = (rawText: string) => {
-    const sections = {
+    const sections: { [key: string]: string } = {
         '📜': 'Opening',
         '👥': 'Attendees',
         '💬': 'Discussion Points',
         '✅': 'Decisions & Recommendations',
         '🏁': 'Closing',
+        'المقدمة': 'Opening',
+        'الحضور': 'Attendees',
+        'المحاور': 'Discussion Points',
+        'التوصيات': 'Decisions & Recommendations',
+        'الختام': 'Closing',
       };
       
       const lines = rawText.split('\n');
-      const parsedContent = [];
-      let currentSection: React.ReactNode[] = [];
-      let currentTitle = '';
+      const parsedContent: React.ReactNode[] = [];
+      let currentSection: string[] = [];
+      let currentTitle: string | null = null;
   
+      const flushSection = () => {
+        if (currentTitle) {
+          parsedContent.push(
+            <div key={currentTitle} className="mb-4">
+              <h3 className="font-headline font-semibold text-lg mb-2">{currentTitle}</h3>
+              <div className="space-y-1 text-muted-foreground">
+                {currentSection.map((line, index) => <p key={index}>{line}</p>)}
+              </div>
+            </div>
+          );
+          currentSection = [];
+        }
+      };
+
       for (const line of lines) {
         const trimmedLine = line.trim();
         if (!trimmedLine) continue;
   
         let isNewSection = false;
-        for (const [icon, title] of Object.entries(sections)) {
-          if (trimmedLine.startsWith(icon) || trimmedLine.includes(title)) {
-            if (currentTitle) {
-              parsedContent.push(
-                <div key={currentTitle} className="mb-4">
-                  <h3 className="font-headline font-semibold text-lg mb-2">{currentTitle}</h3>
-                  <div className="space-y-1 text-muted-foreground">{currentSection}</div>
-                </div>
-              );
-            }
+        for (const key of Object.keys(sections)) {
+          if (trimmedLine.includes(key)) {
+            flushSection();
             currentTitle = trimmedLine;
-            currentSection = [];
             isNewSection = true;
             break;
           }
         }
   
-        if (!isNewSection) {
-          currentSection.push(<p key={trimmedLine}>{trimmedLine}</p>);
+        if (!isNewSection && currentTitle) {
+          currentSection.push(trimmedLine);
+        } else if (!isNewSection && !currentTitle) {
+            // Handle cases where summary doesn't start with a section
+            currentTitle = "Summary";
+            currentSection.push(trimmedLine);
         }
       }
   
-      if (currentTitle) {
-        parsedContent.push(
-          <div key={currentTitle} className="mb-4">
-            <h3 className="font-headline font-semibold text-lg mb-2">{currentTitle}</h3>
-            <div className="space-y-1 text-muted-foreground">{currentSection}</div>
-          </div>
-        );
-      }
+      flushSection();
   
-      return parsedContent.length > 0 ? parsedContent : <p>{rawText}</p>;
+      return parsedContent.length > 0 ? parsedContent : <p className="whitespace-pre-wrap">{rawText}</p>;
   };
 
   return (
@@ -108,6 +116,7 @@ export function SummaryDisplay({ summary, originalFilename, onSave, isSaving }: 
       <Card>
         <CardHeader>
           <CardTitle className="font-headline text-2xl">Generated Summary</CardTitle>
+          <p className="text-sm text-muted-foreground">Source: {originalFilename}</p>
           <div className="flex items-center space-x-2 pt-2">
             <Button variant="outline" size="sm" onClick={handleSave} disabled={isSaving}>
               {isSaving ? (
