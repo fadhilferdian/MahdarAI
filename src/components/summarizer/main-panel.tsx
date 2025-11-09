@@ -165,8 +165,8 @@ export default function MainPanel() {
               </TabsContent>
             </Tabs>
              <div className="space-y-3 pt-4">
-                <Label htmlFor="target-language">Bahasa Hasil Ringkasan</Label>
-                <div className="flex flex-wrap gap-2">
+                <Label htmlFor="target-language" className="text-center block">Bahasa Hasil Ringkasan</Label>
+                <div className="flex flex-wrap justify-center gap-2">
                     <Button
                         variant={targetLanguage === 'id' ? 'default' : 'outline'}
                         onClick={() => setTargetLanguage('id')}
