@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useRef, type DragEvent } from 'react';
-import { UploadCloud, File as FileIcon, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { UploadCloud, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
+import { transcribeAndExtract } from '@/lib/actions';
 
 type FileUploaderProps = {
   onProcessingStart: () => void;
-  onProcessingSuccess: (data: { extractedText: string; language: 'id' | 'ar' }, filename: string) => void;
+  onProcessingSuccess: (data: { extractedText: string; language: 'id' | 'ar' | 'en' }, filename: string) => void;
   onProcessingError: (error: string) => void;
   disabled: boolean;
 };
@@ -47,7 +47,6 @@ export function FileUploader({
     try {
       const dataUri = await fileToDataURI(file);
 
-      const { transcribeAndExtract } = await import('@/lib/actions');
       const result = await transcribeAndExtract(dataUri, file.name);
 
       if (result.success && result.data) {
@@ -126,7 +125,7 @@ export function FileUploader({
             disabled={disabled}
           />
 
-          {isProcessing ? (
+          {isProcessing || disabled ? (
             <div className="flex flex-col items-center text-center">
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
               <p className="mt-4 font-semibold">Processing File</p>

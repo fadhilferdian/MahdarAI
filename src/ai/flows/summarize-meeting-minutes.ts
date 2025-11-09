@@ -16,14 +16,13 @@ const SummarizeMeetingMinutesInputSchema = z.object({
   text: z
     .string()
     .describe("The text to summarize, extracted from either an audio transcription or a document."),
-  language: z.enum(['id', 'ar']).describe('The language of the input text (Indonesian or Arabic).'),
+  sourceLanguage: z.enum(['id', 'ar', 'en']).describe('The language of the input text (Indonesian, Arabic, or English).'),
+  targetLanguage: z.enum(['id', 'ar', 'en']).describe('The target language for the summary (Indonesian, Arabic, or English).'),
 });
 export type SummarizeMeetingMinutesInput = z.infer<typeof SummarizeMeetingMinutesInputSchema>;
 
 const SummarizeMeetingMinutesOutputSchema = z.object({
-  indonesianSummary: z.string().describe('The summary of the meeting minutes in Indonesian.'),
-  arabicSummary: z.string().describe('The summary of the meeting minutes in formal Arabic.'),
-  englishSummary: z.string().describe('The summary of the meeting minutes in English.'),
+  summary: z.string().describe('The summary of the meeting minutes in the target language.'),
 });
 export type SummarizeMeetingMinutesOutput = z.infer<typeof SummarizeMeetingMinutesOutputSchema>;
 
@@ -31,37 +30,30 @@ export async function summarizeMeetingMinutes(input: SummarizeMeetingMinutesInpu
   return summarizeMeetingMinutesFlow(input);
 }
 
+const languageMap = {
+  id: 'Indonesian',
+  ar: 'Arabic',
+  en: 'English',
+};
+
+
 const prompt = ai.definePrompt({
   name: 'summarizeMeetingMinutesPrompt',
   input: {schema: SummarizeMeetingMinutesInputSchema},
   output: {schema: SummarizeMeetingMinutesOutputSchema},
   model: googleAI.model('gemini-2.5-flash'),
-  prompt: `You are an AI expert in creating summaries of meeting minutes in Indonesian, formal Arabic, and English.
+  prompt: `You are an AI expert in creating summaries of meeting minutes.
 
-  The input text is in {{language}}.
+  The input text is in {{sourceLanguage}}.
 
-  Create a summary of the following meeting minutes in all three languages (Indonesian, formal Arabic, English), using the following format:
+  Create a summary of the following meeting minutes in {{targetLanguage}}.
 
-  **Indonesian Summary:**
-  📜 Pembukaan (Opening)
-  👥 Daftar Hadir (Attendees)
-  💬 المحاور (Discussion Points)
-  ✅ التوصيات (Decisions & Recommendations)
-  🏁 الختام (Closing)
-
-  **Arabic Summary:**
-  📜 المقدمة (Opening)
-  👥 الحضور (Attendees)
-  💬 المحاور (Discussion Points)
-  ✅ التوصيات (Decisions & Recommendations)
-  🏁 الختام (Closing)
-
-  **English Summary:**
-  📜 Opening
-  👥 Attendees
-  💬 Discussion Points
-  ✅ Decisions & Recommendations
-  🏁 Closing
+  The summary should follow this structure, translated to the {{targetLanguage}}:
+  - Opening
+  - Attendees
+  - Discussion Points
+  - Decisions & Recommendations
+  - Closing
 
   Text to summarize: {{{text}}} `,
 });
@@ -72,8 +64,12 @@ const summarizeMeetingMinutesFlow = ai.defineFlow(
     inputSchema: SummarizeMeetingMinutesInputSchema,
     outputSchema: SummarizeMeetingMinutesOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
+  async (input) => {
+    const { output } = await prompt({
+      ...input,
+      sourceLanguage: languageMap[input.sourceLanguage],
+      targetLanguage: languageMap[input.targetLanguage],
+    });
     return output!;
   }
 );

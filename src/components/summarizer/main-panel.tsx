@@ -6,29 +6,30 @@ import { SummaryDisplay } from './summary-display';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/use-auth';
 import type { SummarizeMeetingMinutesOutput, TranscribeAudioAndExtractTextOutput } from '@/lib/types';
-import { saveHistory, summarize } from '@/lib/actions';
+import { summarize } from '@/lib/actions';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 
 type AppState = 'idle' | 'processingFile' | 'summarizing' | 'complete';
 type InputMode = 'text' | 'upload' | 'url';
+type Language = 'id' | 'ar' | 'en';
 
 export default function MainPanel() {
   const [appState, setAppState] = useState<AppState>('idle');
   const [inputMode, setInputMode] = useState<InputMode>('upload');
   const [extractedText, setExtractedText] = useState('');
-  const [language, setLanguage] = useState<'id' | 'ar'>('id');
+  const [sourceLanguage, setSourceLanguage] = useState<Language>('id');
+  const [targetLanguage, setTargetLanguage] = useState<Language>('id');
   const [summary, setSummary] = useState<SummarizeMeetingMinutesOutput | null>(null);
   const [originalFilename, setOriginalFilename] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
   const [url, setUrl] = useState('');
 
   const { toast } = useToast();
-  const { user } = useAuth();
 
   const handleProcessingStart = () => {
     setAppState('processingFile');
@@ -38,7 +39,7 @@ export default function MainPanel() {
 
   const handleProcessingSuccess = async (data: TranscribeAudioAndExtractTextOutput, filename: string) => {
     setExtractedText(data.extractedText);
-    setLanguage(data.language);
+    setSourceLanguage(data.language);
     setOriginalFilename(filename);
     await handleSummarize(data.extractedText, data.language, filename);
   };
@@ -68,11 +69,12 @@ export default function MainPanel() {
       });
       return;
     }
-    const lang = /[\u0600-\u06FF]/.test(extractedText) ? 'ar' : 'id';
+    const lang: Language = /[\u0600-\u06FF]/.test(extractedText) ? 'ar' : (/[a-zA-Z]/.test(extractedText) ? 'en' : 'id');
+    setSourceLanguage(lang);
     handleSummarize(extractedText, lang, 'Teks Manual');
   }
 
-  const handleSummarize = async (textToSummarize: string, lang: 'id' | 'ar', filename: string) => {
+  const handleSummarize = async (textToSummarize: string, lang: Language, filename: string) => {
     if (!textToSummarize.trim()) {
       toast({
         title: 'No Text',
@@ -85,7 +87,7 @@ export default function MainPanel() {
     setSummary(null);
     setOriginalFilename(filename);
     
-    const result = await summarize(textToSummarize, lang);
+    const result = await summarize(textToSummarize, lang, targetLanguage);
 
     if (result.success && result.data) {
       setSummary(result.data);
@@ -98,23 +100,6 @@ export default function MainPanel() {
       });
       setAppState('idle');
     }
-  };
-
-  const handleSaveToHistory = async () => {
-    if (!summary) return { success: false, error: 'No summary to save.' };
-    if (!user) {
-        toast({
-            title: 'Not Logged In',
-            description: 'You must be logged in to save history.',
-            variant: 'destructive'
-        });
-        return { success: false, error: 'You must be logged in to save history.' };
-    }
-
-    setIsSaving(true);
-    const result = await saveHistory(summary, originalFilename, user.uid);
-    setIsSaving(false);
-    return result;
   };
 
   const handleReset = () => {
@@ -131,12 +116,28 @@ export default function MainPanel() {
     <div className="container py-8 w-full">
       <div className="flex flex-col items-center space-y-8">
         <Card className="w-full max-w-2xl">
-          <CardContent className="p-0">
+          <CardContent className="p-6 space-y-4">
+             <div className="space-y-2">
+                <Label htmlFor="target-language">Bahasa Hasil Ringkasan</Label>
+                <Select
+                    value={targetLanguage}
+                    onValueChange={(value) => setTargetLanguage(value as Language)}
+                    disabled={isProcessing}
+                >
+                    <SelectTrigger id="target-language">
+                        <SelectValue placeholder="Pilih bahasa..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="id">Bahasa Indonesia</SelectItem>
+                        <SelectItem value="en">English</SelectItem>
+                        <SelectItem value="ar">اللغة العربية</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
             <Tabs value={inputMode} onValueChange={(value) => setInputMode(value as InputMode)} className="w-full">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="upload" disabled={isProcessing}>Unggah File</TabsTrigger>
                 <TabsTrigger value="text" disabled={isProcessing}>Teks</TabsTrigger>
-
                 <TabsTrigger value="url" disabled={isProcessing}>URL</TabsTrigger>
               </TabsList>
               <TabsContent value="upload">
@@ -202,8 +203,7 @@ export default function MainPanel() {
                 <SummaryDisplay
                     summary={summary}
                     originalFilename={originalFilename}
-                    onSave={handleSaveToHistory}
-                    isSaving={isSaving}
+                    targetLanguage={targetLanguage}
                 />
                 <div className="flex justify-center mt-8">
                     <Button variant="outline" onClick={handleReset}>
@@ -216,5 +216,3 @@ export default function MainPanel() {
     </div>
   );
 }
-
-    
