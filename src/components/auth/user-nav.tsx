@@ -1,7 +1,7 @@
 'use client';
 
 import { signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { getFirebaseAuth } from '@/lib/firebase';
 import { useAuth } from '@/hooks/use-auth';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -32,6 +32,7 @@ export function UserNav() {
 
   const handleLogout = async () => {
     if (!isClient) return;
+    const auth = getFirebaseAuth();
     try {
       await signOut(auth);
     } catch (error) {
@@ -44,7 +45,7 @@ export function UserNav() {
     }
   };
 
-  if (!user || !isClient) {
+  if (!isClient || !user) {
     return null;
   }
 

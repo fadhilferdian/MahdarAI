@@ -1,7 +1,7 @@
 'use client';
 
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { getFirebaseAuth } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { LogIn } from 'lucide-react';
@@ -15,9 +15,9 @@ export function LoginButton() {
     setIsClient(true);
   }, []);
 
-
   const handleLogin = async () => {
     if (!isClient) return;
+    const auth = getFirebaseAuth();
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
@@ -32,7 +32,7 @@ export function LoginButton() {
   };
 
   if (!isClient) {
-    return <div className="h-10 w-10" />; // Placeholder
+    return <div className="h-10 w-10" />; // Placeholder to prevent layout shift
   }
 
   return (

@@ -24,6 +24,8 @@ export default function HistoryList() {
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     if (user) {
       const fetchHistory = async () => {
         setIsLoadingHistory(true);
