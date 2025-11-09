@@ -137,7 +137,7 @@ export function SummaryDisplay({ summary, originalFilename, onSave, isSaving }: 
           </div>
         </CardHeader>
       </Card>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="font-headline">Bahasa Indonesia</CardTitle>
@@ -154,6 +154,26 @@ export function SummaryDisplay({ summary, originalFilename, onSave, isSaving }: 
             <ScrollArea className="h-[500px]">
               <div className="prose prose-sm dark:prose-invert max-w-none">
                 {parseSummary(summary.indonesianSummary)}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="font-headline">English</CardTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleCopy(summary.englishSummary, 'English')}
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+          </CardHeader>
+          <Separator />
+          <CardContent className="p-6">
+            <ScrollArea className="h-[500px]">
+              <div className="prose prose-sm dark:prose-invert max-w-none">
+                {parseSummary(summary.englishSummary)}
               </div>
             </ScrollArea>
           </CardContent>

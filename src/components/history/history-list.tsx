@@ -87,13 +87,22 @@ export default function HistoryList() {
             </div>
           </AccordionTrigger>
           <AccordionContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-2">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-2">
                 <Card>
                     <CardContent className="p-4">
                         <h3 className="font-headline mb-2">Bahasa Indonesia</h3>
                         <Separator className="mb-4" />
                         <ScrollArea className="h-64">
                             <p className="text-sm whitespace-pre-wrap">{item.indonesianSummary}</p>
+                        </ScrollArea>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardContent className="p-4">
+                        <h3 className="font-headline mb-2">English</h3>
+                        <Separator className="mb-4" />
+                        <ScrollArea className="h-64">
+                            <p className="text-sm whitespace-pre-wrap">{item.englishSummary}</p>
                         </ScrollArea>
                     </CardContent>
                 </Card>

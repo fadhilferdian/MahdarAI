@@ -6,12 +6,14 @@ export type Summary = {
   originalFilename: string;
   indonesianSummary: string;
   arabicSummary: string;
+  englishSummary: string;
   createdAt: Timestamp;
 };
 
 export type SummarizeMeetingMinutesOutput = {
   indonesianSummary: string;
   arabicSummary: string;
+  englishSummary: string;
 };
 
 export type TranscribeAudioAndExtractTextOutput = {

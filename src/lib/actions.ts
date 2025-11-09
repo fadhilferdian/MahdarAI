@@ -50,7 +50,7 @@ export async function summarize(
       language,
     };
     const result = await summarizeMeetingMinutes(input);
-     if (!result || !result.arabicSummary || !result.indonesianSummary) {
+     if (!result || !result.arabicSummary || !result.indonesianSummary || !result.englishSummary) {
         throw new Error('AI failed to generate summary.');
     }
     return { success: true, data: result, error: null };
@@ -76,6 +76,7 @@ export async function saveHistory(
       originalFilename,
       indonesianSummary: summary.indonesianSummary,
       arabicSummary: summary.arabicSummary,
+      englishSummary: summary.englishSummary,
       createdAt: serverTimestamp(),
     });
     return { success: true, error: null };

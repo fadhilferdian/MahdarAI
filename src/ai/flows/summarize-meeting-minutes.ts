@@ -23,6 +23,7 @@ export type SummarizeMeetingMinutesInput = z.infer<typeof SummarizeMeetingMinute
 const SummarizeMeetingMinutesOutputSchema = z.object({
   indonesianSummary: z.string().describe('The summary of the meeting minutes in Indonesian.'),
   arabicSummary: z.string().describe('The summary of the meeting minutes in formal Arabic.'),
+  englishSummary: z.string().describe('The summary of the meeting minutes in English.'),
 });
 export type SummarizeMeetingMinutesOutput = z.infer<typeof SummarizeMeetingMinutesOutputSchema>;
 
@@ -35,11 +36,11 @@ const prompt = ai.definePrompt({
   input: {schema: SummarizeMeetingMinutesInputSchema},
   output: {schema: SummarizeMeetingMinutesOutputSchema},
   model: googleAI.model('gemini-2.5-flash'),
-  prompt: `You are an AI expert in creating summaries of meeting minutes in both Indonesian and formal Arabic.
+  prompt: `You are an AI expert in creating summaries of meeting minutes in Indonesian, formal Arabic, and English.
 
   The input text is in {{language}}.
 
-  Create a summary of the following meeting minutes in both Indonesian and formal Arabic, using the following format:
+  Create a summary of the following meeting minutes in all three languages (Indonesian, formal Arabic, English), using the following format:
 
   **Indonesian Summary:**
   📜 Pembukaan (Opening)
@@ -54,6 +55,13 @@ const prompt = ai.definePrompt({
   💬 المحاور (Discussion Points)
   ✅ التوصيات (Decisions & Recommendations)
   🏁 الختام (Closing)
+
+  **English Summary:**
+  📜 Opening
+  👥 Attendees
+  💬 Discussion Points
+  ✅ Decisions & Recommendations
+  🏁 Closing
 
   Text to summarize: {{{text}}} `,
 });
