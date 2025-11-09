@@ -14,7 +14,8 @@ const firebaseConfig = {
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-const auth = typeof window !== 'undefined' ? getAuth(app) : ({} as any);
+// We only want to initialize auth on the client
+const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 

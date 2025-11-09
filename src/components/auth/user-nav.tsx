@@ -19,12 +19,19 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogOut, History, User as UserIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useEffect, useState } from 'react';
 
 export function UserNav() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleLogout = async () => {
+    if (!isClient) return;
     try {
       await signOut(auth);
     } catch (error) {
@@ -37,7 +44,7 @@ export function UserNav() {
     }
   };
 
-  if (!user) {
+  if (!user || !isClient) {
     return null;
   }
 
