@@ -14,7 +14,7 @@ import { useAuth } from '@/hooks/use-auth';
 import type { SummarizeMeetingMinutesOutput, TranscribeAudioAndExtractTextOutput } from '@/lib/types';
 import { saveHistory, summarize } from '@/lib/actions';
 
-type AppState = 'idle' | 'processingFile' | 'editing' | 'summarizing' | 'complete';
+type AppState = 'idle' | 'processingFile' | 'summarizing' | 'complete';
 type InputMode = 'text' | 'upload' | 'url';
 
 export default function MainPanel() {
@@ -36,11 +36,11 @@ export default function MainPanel() {
     setExtractedText('');
   };
 
-  const handleProcessingSuccess = (data: TranscribeAudioAndExtractTextOutput, filename: string) => {
+  const handleProcessingSuccess = async (data: TranscribeAudioAndExtractTextOutput, filename: string) => {
     setExtractedText(data.extractedText);
     setLanguage(data.language);
     setOriginalFilename(filename);
-    setAppState('editing');
+    await handleSummarize(data.extractedText, data.language, filename);
   };
 
   const handleProcessingError = (error: string) => {
@@ -51,7 +51,7 @@ export default function MainPanel() {
     });
     setAppState('idle');
   };
-
+  
   const handleUrlProcess = () => {
     toast({
       title: 'Fitur Belum Tersedia',
@@ -59,18 +59,21 @@ export default function MainPanel() {
     });
   }
 
-  const handleDirectTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const text = e.target.value;
-    setExtractedText(text);
-    if(text.trim().length > 0) {
-        setAppState('editing');
-    } else {
-        setAppState('idle');
+  const handleDirectTextProcess = () => {
+    if (!extractedText.trim()) {
+      toast({
+        title: 'Teks Kosong',
+        description: 'Silakan masukkan teks untuk diringkas.',
+        variant: 'destructive'
+      });
+      return;
     }
+    const lang = /[\u0600-\u06FF]/.test(extractedText) ? 'ar' : 'id';
+    handleSummarize(extractedText, lang, 'Teks Manual');
   }
 
-  const handleSummarize = async () => {
-    if (!extractedText.trim()) {
+  const handleSummarize = async (textToSummarize: string, lang: 'id' | 'ar', filename: string) => {
+    if (!textToSummarize.trim()) {
       toast({
         title: 'No Text',
         description: 'There is no text to summarize.',
@@ -79,19 +82,13 @@ export default function MainPanel() {
       return;
     }
     setAppState('summarizing');
-    // Simple language detection for direct text input
-    const lang = /[\u0600-\u06FF]/.test(extractedText) ? 'ar' : 'id';
-    setLanguage(lang);
-
-    const result = await summarize(extractedText, lang);
+    setSummary(null);
+    setOriginalFilename(filename);
+    
+    const result = await summarize(textToSummarize, lang);
 
     if (result.success && result.data) {
       setSummary(result.data);
-      if (inputMode === 'text') {
-        setOriginalFilename('Teks Manual');
-      } else if (inputMode === 'url') {
-        setOriginalFilename(url);
-      }
       setAppState('complete');
     } else {
       toast({
@@ -99,7 +96,7 @@ export default function MainPanel() {
         description: result.error || 'An unknown error occurred.',
         variant: 'destructive',
       });
-      setAppState('editing');
+      setAppState('idle');
     }
   };
 
@@ -130,118 +127,94 @@ export default function MainPanel() {
 
   const isProcessing = appState === 'processingFile' || appState === 'summarizing';
 
-  const renderContent = () => {
-    if (appState === 'complete' && summary) {
-      return (
-        <>
-          <SummaryDisplay
-            summary={summary}
-            originalFilename={originalFilename}
-            onSave={handleSaveToHistory}
-            isSaving={isSaving}
-          />
-          <div className="flex justify-center mt-8">
-            <Button variant="outline" onClick={handleReset}>
-              Buat Ringkasan Baru
-            </Button>
-          </div>
-        </>
-      );
-    }
-
-    if (appState === 'editing' || appState === 'summarizing') {
-        return (
-            <Card className="w-full">
-            <CardHeader>
-              <CardTitle className="font-headline text-2xl">Edit Teks Hasil Ekstraksi</CardTitle>
-              <CardDescription>
-                Periksa dan edit teks sebelum membuat ringkasan.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Textarea
-                value={extractedText}
-                onChange={(e) => setExtractedText(e.target.value)}
-                placeholder="Teks hasil ekstraksi akan muncul di sini..."
-                rows={15}
-                disabled={appState === 'summarizing'}
-              />
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={handleReset} disabled={appState === 'summarizing'}>
-                  Mulai Lagi
-                </Button>
-                <Button onClick={handleSummarize} disabled={appState === 'summarizing'}>
-                  {appState === 'summarizing' ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : null}
-                  Buat Ringkasan
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )
-    }
-
-    return (
-      <Card className="w-full max-w-2xl">
-        <CardContent className="p-0">
-          <Tabs value={inputMode} onValueChange={(value) => setInputMode(value as InputMode)} className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="upload">Unggah File</TabsTrigger>
-              <TabsTrigger value="text">Teks</TabsTrigger>
-              <TabsTrigger value="url">URL</TabsTrigger>
-            </TabsList>
-            <TabsContent value="upload">
-              <FileUploader
-                onProcessingStart={handleProcessingStart}
-                onProcessingSuccess={handleProcessingSuccess}
-                onProcessingError={handleProcessingError}
-                disabled={appState === 'processingFile'}
-              />
-            </TabsContent>
-            <TabsContent value="text">
-                <div className="p-6 space-y-4">
-                    <Textarea
-                        placeholder="Tempel atau ketik teks Anda di sini..."
-                        rows={12}
-                        value={extractedText}
-                        onChange={handleDirectTextChange}
-                        disabled={isProcessing}
-                    />
-                    <div className="flex justify-end">
-                        <Button onClick={handleSummarize} disabled={!extractedText.trim() || isProcessing}>
-                            Buat Ringkasan
-                        </Button>
-                    </div>
-                </div>
-            </TabsContent>
-            <TabsContent value="url">
-            <div className="p-6 space-y-4">
-                    <Input
-                        type="url"
-                        placeholder="https://example.com/article"
-                        value={url}
-                        onChange={(e) => setUrl(e.target.value)}
-                        disabled={isProcessing}
-                    />
-                     <div className="flex justify-end">
-                        <Button onClick={handleUrlProcess} disabled={!url.trim() || isProcessing}>
-                            Proses URL
-                        </Button>
-                    </div>
-                </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-    );
-  };
-
   return (
-    <div className="container py-8">
+    <div className="container py-8 w-full">
       <div className="flex flex-col items-center space-y-8">
-        {renderContent()}
+        <Card className="w-full max-w-2xl">
+          <CardContent className="p-0">
+            <Tabs value={inputMode} onValueChange={(value) => setInputMode(value as InputMode)} className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="upload" disabled={isProcessing}>Unggah File</TabsTrigger>
+                <TabsTrigger value="text" disabled={isProcessing}>Teks</TabsTrigger>
+
+                <TabsTrigger value="url" disabled={isProcessing}>URL</TabsTrigger>
+              </TabsList>
+              <TabsContent value="upload">
+                <FileUploader
+                  onProcessingStart={handleProcessingStart}
+                  onProcessingSuccess={handleProcessingSuccess}
+                  onProcessingError={handleProcessingError}
+                  disabled={isProcessing}
+                />
+              </TabsContent>
+              <TabsContent value="text">
+                  <div className="p-6 space-y-4">
+                      <Textarea
+                          placeholder="Tempel atau ketik teks Anda di sini..."
+                          rows={12}
+                          value={extractedText}
+                          onChange={(e) => setExtractedText(e.target.value)}
+                          disabled={isProcessing}
+                      />
+                      <div className="flex justify-end">
+                          <Button onClick={handleDirectTextProcess} disabled={!extractedText.trim() || isProcessing}>
+                              Buat Ringkasan
+                          </Button>
+                      </div>
+                  </div>
+              </TabsContent>
+              <TabsContent value="url">
+              <div className="p-6 space-y-4">
+                      <Input
+                          type="url"
+                          placeholder="https://example.com/article"
+                          value={url}
+                          onChange={(e) => setUrl(e.target.value)}
+                          disabled={isProcessing}
+                      />
+                       <div className="flex justify-end">
+                          <Button onClick={handleUrlProcess} disabled={!url.trim() || isProcessing}>
+                              Proses URL
+                          </Button>
+                      </div>
+                  </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+        
+        {isProcessing && (
+             <Card className="w-full">
+                <CardContent className="p-6 flex flex-col items-center justify-center text-center">
+                    <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                    <p className="mt-4 font-semibold">
+                        {appState === 'processingFile' ? 'Mengekstrak Teks...' : 'Membuat Ringkasan...'}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                        Ini mungkin perlu beberapa saat.
+                    </p>
+                </CardContent>
+             </Card>
+        )}
+
+        {appState === 'complete' && summary && (
+            <div className="w-full">
+                <SummaryDisplay
+                    summary={summary}
+                    originalFilename={originalFilename}
+                    onSave={handleSaveToHistory}
+                    isSaving={isSaving}
+                />
+                <div className="flex justify-center mt-8">
+                    <Button variant="outline" onClick={handleReset}>
+                    Buat Ringkasan Baru
+                    </Button>
+                </div>
+            </div>
+        )}
       </div>
     </div>
   );
 }
+
+    
