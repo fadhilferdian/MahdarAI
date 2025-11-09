@@ -101,51 +101,47 @@ export function FileUploader({
   };
 
   return (
-    <Card className="w-full">
-      <CardContent className="p-6">
-        <div
-          className={cn(
-            'flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors',
-            { 'bg-accent/50 border-primary': isDragging },
-            { 'hover:bg-accent/20': !disabled },
-            { 'cursor-not-allowed opacity-50': disabled }
-          )}
-          onDragEnter={handleDragEnter}
-          onDragOver={(e) => e.preventDefault()}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          onClick={handleClick}
-        >
-          <input
-            type="file"
-            ref={fileInputRef}
-            className="hidden"
-            onChange={handleFileChange}
-            accept=".mp3,.wav,.m4a,.pdf,.docx"
-            disabled={disabled}
-          />
+    <div
+      className={cn(
+        'flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors',
+        { 'bg-accent/50 border-primary': isDragging },
+        { 'hover:bg-accent/20': !disabled },
+        { 'cursor-not-allowed opacity-50': disabled }
+      )}
+      onDragEnter={handleDragEnter}
+      onDragOver={(e) => e.preventDefault()}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      onClick={handleClick}
+    >
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        onChange={handleFileChange}
+        accept=".mp3,.wav,.m4a,.pdf,.docx"
+        disabled={disabled}
+      />
 
-          {isProcessing || disabled ? (
-            <div className="flex flex-col items-center text-center">
-              <Loader2 className="h-12 w-12 animate-spin text-primary" />
-              <p className="mt-4 font-semibold">Processing File</p>
-              <p className="text-sm text-muted-foreground mt-1 truncate max-w-xs">{fileName}</p>
-              <p className="text-sm text-muted-foreground mt-2">This may take a few moments...</p>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center text-center">
-              <UploadCloud className="h-12 w-12 text-muted-foreground" />
-              <p className="mt-4 font-semibold">
-                Drag & drop your file here or click to upload
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Supported formats: .mp3, .wav, .m4a, .pdf, .docx
-              </p>
-              {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
-            </div>
-          )}
+      {isProcessing || disabled ? (
+        <div className="flex flex-col items-center text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="mt-4 font-semibold">Processing File</p>
+          <p className="text-sm text-muted-foreground mt-1 truncate max-w-xs">{fileName}</p>
+          <p className="text-sm text-muted-foreground mt-2">This may take a few moments...</p>
         </div>
-      </CardContent>
-    </Card>
+      ) : (
+        <div className="flex flex-col items-center text-center">
+          <UploadCloud className="h-12 w-12 text-muted-foreground" />
+          <p className="mt-4 font-semibold">
+            Drag & drop your file here or click to upload
+          </p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Supported formats: .mp3, .wav, .m4a, .pdf, .docx
+          </p>
+          {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
+        </div>
+      )}
+    </div>
   );
 }

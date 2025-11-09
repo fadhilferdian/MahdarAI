@@ -12,8 +12,8 @@ import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { SummarizeMeetingMinutesOutput, TranscribeAudioAndExtractTextOutput } from '@/lib/types';
 import { summarize } from '@/lib/actions';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 type AppState = 'idle' | 'processingFile' | 'summarizing' | 'complete';
 type InputMode = 'text' | 'upload' | 'url';
@@ -117,23 +117,6 @@ export default function MainPanel() {
       <div className="flex flex-col items-center space-y-8">
         <Card className="w-full max-w-2xl">
           <CardContent className="p-6 space-y-4">
-             <div className="space-y-2">
-                <Label htmlFor="target-language">Bahasa Hasil Ringkasan</Label>
-                <Select
-                    value={targetLanguage}
-                    onValueChange={(value) => setTargetLanguage(value as Language)}
-                    disabled={isProcessing}
-                >
-                    <SelectTrigger id="target-language">
-                        <SelectValue placeholder="Pilih bahasa..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="id">Bahasa Indonesia</SelectItem>
-                        <SelectItem value="en">English</SelectItem>
-                        <SelectItem value="ar">اللغة العربية</SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
             <Tabs value={inputMode} onValueChange={(value) => setInputMode(value as InputMode)} className="w-full">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="upload" disabled={isProcessing}>Unggah File</TabsTrigger>
@@ -149,7 +132,7 @@ export default function MainPanel() {
                 />
               </TabsContent>
               <TabsContent value="text">
-                  <div className="p-6 space-y-4">
+                  <div className="space-y-4 pt-4">
                       <Textarea
                           placeholder="Tempel atau ketik teks Anda di sini..."
                           rows={12}
@@ -165,7 +148,7 @@ export default function MainPanel() {
                   </div>
               </TabsContent>
               <TabsContent value="url">
-              <div className="p-6 space-y-4">
+              <div className="space-y-4 pt-4">
                       <Input
                           type="url"
                           placeholder="https://example.com/article"
@@ -181,11 +164,40 @@ export default function MainPanel() {
                   </div>
               </TabsContent>
             </Tabs>
+             <div className="space-y-3 pt-4">
+                <Label htmlFor="target-language">Bahasa Hasil Ringkasan</Label>
+                <div className="flex flex-wrap gap-2">
+                    <Button
+                        variant={targetLanguage === 'id' ? 'default' : 'outline'}
+                        onClick={() => setTargetLanguage('id')}
+                        disabled={isProcessing}
+                        className={cn('flex-grow sm:flex-grow-0')}
+                    >
+                        Bahasa Indonesia
+                    </Button>
+                     <Button
+                        variant={targetLanguage === 'en' ? 'default' : 'outline'}
+                        onClick={() => setTargetLanguage('en')}
+                        disabled={isProcessing}
+                        className={cn('flex-grow sm:flex-grow-0')}
+                    >
+                        English
+                    </Button>
+                     <Button
+                        variant={targetLanguage === 'ar' ? 'default' : 'outline'}
+                        onClick={() => setTargetLanguage('ar')}
+                        disabled={isProcessing}
+                        className={cn('flex-grow sm:flex-grow-0')}
+                    >
+                        اللغة العربية
+                    </Button>
+                </div>
+            </div>
           </CardContent>
         </Card>
         
         {isProcessing && (
-             <Card className="w-full">
+             <Card className="w-full max-w-2xl">
                 <CardContent className="p-6 flex flex-col items-center justify-center text-center">
                     <Loader2 className="h-12 w-12 animate-spin text-primary" />
                     <p className="mt-4 font-semibold">
@@ -199,7 +211,7 @@ export default function MainPanel() {
         )}
 
         {appState === 'complete' && summary && (
-            <div className="w-full">
+            <div className="w-full max-w-2xl">
                 <SummaryDisplay
                     summary={summary}
                     originalFilename={originalFilename}
