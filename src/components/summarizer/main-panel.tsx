@@ -23,14 +23,16 @@ export default function MainPanel() {
   const [extractedText, setExtractedText] = useState('');
   const [sourceLanguage, setSourceLanguage] = useState<Language>('id');
   const [targetLanguage, setTargetLanguage] = useState<Language>('id');
-  const [summary, setSummary] = useState<SummarizeMeetingMinutesOutput | null>(null);
+  const [currentSummary, setCurrentSummary] = useState<SummarizeMeetingMinutesOutput | null>(null);
+  const [summariesCache, setSummariesCache] = useState<Partial<Record<Language, SummarizeMeetingMinutesOutput>>>({});
   const [originalFilename, setOriginalFilename] = useState('');
   
   const { toast } = useToast();
 
   const handleProcessingStart = () => {
     setAppState('processingFile');
-    setSummary(null);
+    setCurrentSummary(null);
+    setSummariesCache({});
     setExtractedText('');
     setOriginalFilename('');
   };
@@ -66,26 +68,36 @@ export default function MainPanel() {
     const lang: Language = /[\u0600-\u06FF]/.test(extractedText) ? 'ar' : (/[a-zA-Z]/.test(extractedText) ? 'en' : 'id');
     setSourceLanguage(lang);
     setOriginalFilename('Teks Manual');
-    handleSummarize(extractedText, lang, targetLanguage);
+    setTargetLanguage(targetLanguage);
+    handleSummarize();
   }
 
-  const handleSummarize = async (textToSummarize: string, lang: Language, newTargetLanguage: Language) => {
-    if (!textToSummarize.trim()) {
-      setAppState('idle');
+  const handleSummarize = async () => {
+    if (!extractedText.trim()) {
+      setAppState('fileReady');
       toast({
         title: 'Tidak Ada Teks untuk Diringkas',
-        description: 'Berkas tampaknya kosong atau tidak dapat dibaca.',
+        description: 'Teks sumber kosong atau belum siap.',
         variant: 'destructive',
       });
       return;
     }
+
+    // Cek cache dulu
+    if (summariesCache[targetLanguage]) {
+      setCurrentSummary(summariesCache[targetLanguage]!);
+      setAppState('complete');
+      return;
+    }
+
     setAppState('summarizing');
-    setSummary(null);
     
-    const result = await summarize(textToSummarize, lang, newTargetLanguage);
+    const result = await summarize(extractedText, sourceLanguage, targetLanguage);
 
     if (result.success && result.data) {
-      setSummary(result.data);
+      const newCache = { ...summariesCache, [targetLanguage]: result.data };
+      setSummariesCache(newCache);
+      setCurrentSummary(result.data);
       setAppState('complete');
     } else {
       toast({
@@ -93,14 +105,20 @@ export default function MainPanel() {
         description: result.error || 'Terjadi kesalahan yang tidak diketahui.',
         variant: 'destructive',
       });
-      setAppState(extractedText ? 'fileReady' : 'idle'); 
+      // Kembali ke state sebelumnya, jangan reset semua
+      setAppState(currentSummary ? 'complete' : 'fileReady');
     }
   };
 
   const handleTargetLanguageChange = (newLang: Language) => {
     setTargetLanguage(newLang);
-    if (appState === 'complete' && extractedText) {
-      handleSummarize(extractedText, sourceLanguage, newLang);
+    // Jika sudah ada ringkasan atau teks siap, langsung proses
+    if (appState === 'complete' || appState === 'fileReady') {
+      if (summariesCache[newLang]) {
+        setCurrentSummary(summariesCache[newLang]!);
+      } else {
+        handleSummarize();
+      }
     }
   }
 
@@ -108,19 +126,21 @@ export default function MainPanel() {
     setAppState('idle');
     setInputMode('upload');
     setExtractedText('');
-    setSummary(null);
+    setCurrentSummary(null);
+    setSummariesCache({});
     setOriginalFilename('');
     setTargetLanguage('id');
   };
 
   const isProcessing = appState === 'processingFile' || appState === 'summarizing';
-  const showProcessingCard = appState === 'summarizing';
-  const fileIsReady = appState === 'fileReady' || (inputMode === 'text' && extractedText.trim() && appState !== 'complete' && appState !== 'summarizing' && appState !== 'processingFile' )
+  const showUploaderCard = appState !== 'complete' && !currentSummary;
+  const showSummaryControls = appState === 'fileReady' || appState === 'complete' || appState === 'summarizing';
 
   return (
     <div className="container py-8 w-full">
       <div className="flex flex-col items-center space-y-8">
-        { appState !== 'complete' && !showProcessingCard ? (
+        
+        {showUploaderCard && (
           <Card className="w-full max-w-2xl">
             <CardContent className="p-6 space-y-4">
               <Tabs value={inputMode} onValueChange={(value) => setInputMode(value as InputMode)} className="w-full">
@@ -135,7 +155,7 @@ export default function MainPanel() {
                     onProcessingError={handleProcessingError}
                     onProcessingComplete={handleFileProcessed}
                     disabled={isProcessing}
-                    isProcessed={appState === 'fileReady' || appState === 'complete'}
+                    isProcessed={appState === 'fileReady'}
                   />
                 </TabsContent>
                 <TabsContent value="text">
@@ -146,88 +166,29 @@ export default function MainPanel() {
                             value={extractedText}
                             onChange={(e) => {
                               setExtractedText(e.target.value)
-                              if (appState !== 'idle') {
-                                  setAppState('idle');
-                                  setSummary(null);
-                              }
+                              setAppState('fileReady');
+                              setCurrentSummary(null);
+                              setSummariesCache({});
                             }}
                             disabled={isProcessing}
                         />
                     </div>
                 </TabsContent>
               </Tabs>
-              
-              {fileIsReady && (
-                <>
-                  <div className="space-y-3 pt-4">
-                      <Label htmlFor="target-language" className="text-center block">Bahasa Hasil Ringkasan</Label>
-                      <div className="flex flex-wrap justify-center gap-2">
-                          <Button
-                              variant={targetLanguage === 'id' ? 'default' : 'outline'}
-                              onClick={() => handleTargetLanguageChange('id')}
-                              disabled={isProcessing}
-                              className="flex-1 sm:flex-none"
-                          >
-                              Bahasa Indonesia
-                          </Button>
-                          <Button
-                              variant={targetLanguage === 'en' ? 'default' : 'outline'}
-                              onClick={() => handleTargetLanguageChange('en')}
-                              disabled={isProcessing}
-                              className="flex-1 sm:flex-none"
-                          >
-                              English
-                          </Button>
-                          <Button
-                              variant={targetLanguage === 'ar' ? 'default' : 'outline'}
-                              onClick={() => handleTargetLanguageChange('ar')}
-                              disabled={isProcessing}
-                              className="flex-1 sm:flex-none"
-                          >
-                              اللغة العربية
-                          </Button>
-                      </div>
-                  </div>
-                  <div className="flex justify-center pt-4">
-                      <Button 
-                          onClick={() => inputMode === 'upload' ? handleSummarize(extractedText, sourceLanguage, targetLanguage) : handleDirectTextProcess()} 
-                          disabled={isProcessing}
-                          size="lg"
-                      >
-                          {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                          Buat Ringkasan
-                      </Button>
-                  </div>
-                </>
-              )}
             </CardContent>
           </Card>
-        ) : null }
-        
-        {showProcessingCard && (
-             <Card className="w-full max-w-2xl">
-                <CardContent className="p-6 flex flex-col items-center justify-center text-center">
-                    <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                    <p className="mt-4 font-semibold">
-                        Sedang Membuat Ringkasan...
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        Proses ini mungkin memerlukan beberapa saat.
-                    </p>
-                </CardContent>
-             </Card>
         )}
 
-        {appState === 'complete' && summary && (
-            <div className="w-full max-w-2xl">
-                 <Card className="mb-6">
+        {showSummaryControls && (
+            <div className="w-full max-w-2xl space-y-6">
+                <Card>
                     <CardContent className="p-6">
                         <div className="space-y-3">
-                            <Label htmlFor="target-language" className="text-center block">Ubah Bahasa Hasil Ringkasan</Label>
+                            <Label htmlFor="target-language" className="text-center block">Pilih Bahasa Hasil Ringkasan</Label>
                             <div className="flex flex-wrap justify-center gap-2">
                                 <Button
                                     variant={targetLanguage === 'id' ? 'default' : 'outline'}
-                                    onClick={() => handleTargetLanguageChange('id')}
+                                    onClick={() => setTargetLanguage('id')}
                                     disabled={isProcessing}
                                     className="flex-1 sm:flex-none"
                                 >
@@ -235,7 +196,7 @@ export default function MainPanel() {
                                 </Button>
                                 <Button
                                     variant={targetLanguage === 'en' ? 'default' : 'outline'}
-                                    onClick={() => handleTargetLanguageChange('en')}
+                                    onClick={() => setTargetLanguage('en')}
                                     disabled={isProcessing}
                                     className="flex-1 sm:flex-none"
                                 >
@@ -243,7 +204,7 @@ export default function MainPanel() {
                                 </Button>
                                 <Button
                                     variant={targetLanguage === 'ar' ? 'default' : 'outline'}
-                                    onClick={() => handleTargetLanguageChange('ar')}
+                                    onClick={() => setTargetLanguage('ar')}
                                     disabled={isProcessing}
                                     className="flex-1 sm:flex-none"
                                 >
@@ -251,20 +212,52 @@ export default function MainPanel() {
                                 </Button>
                             </div>
                         </div>
+                         {(appState === 'fileReady' || (appState === 'complete' && !summariesCache[targetLanguage])) && (
+                            <div className="flex justify-center pt-6">
+                                <Button 
+                                    onClick={handleSummarize} 
+                                    disabled={isProcessing}
+                                    size="lg"
+                                >
+                                    {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                    Buat Ringkasan
+                                </Button>
+                            </div>
+                        )}
                     </CardContent>
-                 </Card>
-                <SummaryDisplay
-                    summary={summary}
-                    originalFilename={originalFilename}
-                    targetLanguage={targetLanguage}
-                />
+                </Card>
+
+                {(currentSummary || isProcessing) && (
+                    <div className="relative">
+                        {isProcessing && (
+                             <div className="absolute inset-0 bg-white/80 dark:bg-black/80 z-10 flex items-center justify-center rounded-lg">
+                                <div className="flex flex-col items-center text-center">
+                                    <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                                     <p className="mt-4 font-semibold">
+                                        Sedang Membuat Ringkasan...
+                                    </p>
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                        Proses ini mungkin memerlukan beberapa saat.
+                                    </p>
+                                </div>
+                             </div>
+                        )}
+                        {currentSummary && (
+                            <SummaryDisplay
+                                summary={currentSummary}
+                                originalFilename={originalFilename}
+                                targetLanguage={targetLanguage}
+                            />
+                        )}
+                    </div>
+                )}
             </div>
         )}
 
-        {(appState === 'complete' || appState === 'fileReady' ) && !isProcessing && (
+        {(appState === 'complete' || appState === 'fileReady' ) && (
              <div className="flex justify-center mt-4">
-                <Button variant="outline" onClick={handleReset}>
-                Buat Ringkasan Baru
+                <Button variant="outline" onClick={handleReset} disabled={isProcessing}>
+                    Buat Ringkasan Baru
                 </Button>
             </div>
         )}
@@ -272,3 +265,5 @@ export default function MainPanel() {
     </div>
   );
 }
+
+    
