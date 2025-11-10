@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -123,7 +124,8 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLo
                     <CardContent className="p-0">
                         <ScrollArea className="h-[450px] lg:h-[calc(100vh-22rem)]">
                         <div
-                            className={`prose prose-sm dark:prose-invert max-w-none p-6 ${targetLanguage === 'ar' ? 'text-right' : ''}`}
+                            className={`prose prose-sm dark:prose-invert max-w-none p-6`}
+                            style={{ fontFamily: targetLanguage === 'ar' ? 'Cairo, sans-serif' : 'inherit' }}
                             dir={targetLanguage === 'ar' ? 'rtl' : 'ltr'}
                             dangerouslySetInnerHTML={{ __html: formattedSummary }}
                         />

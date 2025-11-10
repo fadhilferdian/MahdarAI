@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { FileUploader } from './file-uploader';
 import { SummaryDisplay } from './summary-display';
 import { Button } from '@/components/ui/button';
@@ -28,10 +29,6 @@ export default function MainPanel() {
   const [originalFilename, setOriginalFilename] = useState('');
   
   const { toast } = useToast();
-
-  useEffect(() => {
-    document.documentElement.dir = targetLanguage === 'ar' ? 'rtl' : 'ltr';
-  }, [targetLanguage]);
 
   const handleProcessingStart = () => {
     setAppState('processingFile');
@@ -193,7 +190,6 @@ export default function MainPanel() {
                     <div className="space-y-4 pt-4">
                         <Textarea
                             placeholder="Salin atau ketik teks Anda di sini untuk diringkas..."
-                            rows={12}
                             value={extractedText}
                             onChange={(e) => handleDirectTextChange(e.target.value)}
                             disabled={isProcessing}
@@ -238,7 +234,7 @@ export default function MainPanel() {
                     <div className="flex justify-center pt-4">
                       <Button 
                           onClick={handleSummarize} 
-                          disabled={isProcessing || !isInputReady}
+                          disabled={isProcessing || appState === 'idle' || appState === 'processingFile'}
                           size="lg"
                       >
                           {isProcessing && appState === 'summarizing' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
