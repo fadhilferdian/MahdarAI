@@ -29,15 +29,14 @@ function formatSummary(summary: string) {
     .replace(/CONCLUSIONS/g, '<strong>CONCLUSIONS</strong>')
     .replace(/الخلاصة/g, '<strong>الخلاصة</strong>')
     .replace(/ACTION ITEMS/g, '<strong>ACTION ITEMS</strong>')
-    .replace(/المهام المطلوبة/g, '<strong>المهام المطلوبة</strong>')
-    .replace(/\n/g, '<br />');
+    .replace(/المهام المطلوبة/g, '<strong>المهام المطلوبة</strong>');
 }
 
 export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLoading }: SummaryDisplayProps) {
   const { toast } = useToast();
 
   const handleCopy = (text: string) => {
-    const plainText = text.replace(/<br \/>/g, '\n').replace(/<strong>|<\/strong>/g, '');
+    const plainText = text.replace(/<strong>|<\/strong>/g, '');
     navigator.clipboard.writeText(plainText);
     toast({
       title: 'Tersalin ke Papan Klip',
@@ -125,7 +124,10 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLo
                         <ScrollArea className="h-[450px] lg:h-[calc(100vh-22rem)]">
                         <div
                             className={`prose prose-sm dark:prose-invert max-w-none p-6`}
-                            style={{ fontFamily: targetLanguage === 'ar' ? 'Cairo, sans-serif' : 'inherit' }}
+                            style={{ 
+                              fontFamily: targetLanguage === 'ar' ? 'Cairo, sans-serif' : 'inherit',
+                              whiteSpace: 'pre-line' 
+                            }}
                             dir={targetLanguage === 'ar' ? 'rtl' : 'ltr'}
                             dangerouslySetInnerHTML={{ __html: formattedSummary }}
                         />
