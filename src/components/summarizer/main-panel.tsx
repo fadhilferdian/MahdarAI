@@ -112,9 +112,10 @@ export default function MainPanel() {
 
   const handleTargetLanguageChange = (newLang: Language) => {
     setTargetLanguage(newLang);
-    if (appState === 'complete') {
+    if (appState === 'complete' || appState === 'fileReady' || appState === 'summarizing') {
       if (summariesCache[newLang]) {
         setCurrentSummary(summariesCache[newLang]!);
+        setAppState('complete');
       } else {
         handleSummarizeBasedOnNewLang(newLang);
       }
@@ -122,6 +123,9 @@ export default function MainPanel() {
   }
 
   const handleSummarizeBasedOnNewLang = async (newLang: Language) => {
+    if(!extractedText.trim()){
+      return;
+    }
     setAppState('summarizing');
     const result = await summarize(extractedText, sourceLanguage, newLang);
      if (result.success && result.data) {
@@ -135,7 +139,7 @@ export default function MainPanel() {
         description: result.error || 'Terjadi kesalahan yang tidak diketahui.',
         variant: 'destructive',
       });
-      setAppState('complete'); 
+      setAppState(currentSummary ? 'complete' : 'fileReady');
     }
   }
 
@@ -157,13 +161,13 @@ export default function MainPanel() {
     <div className="container py-8 w-full h-full">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
         
-        {/* Input Panel */}
+        {/* Input Column */}
         <div className="flex flex-col space-y-6">
           <Card className="flex-grow">
             <CardHeader>
                 <CardTitle className="font-headline text-2xl">Input Data</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent>
               <Tabs 
                 value={inputMode} 
                 onValueChange={(value) => {
@@ -175,14 +179,14 @@ export default function MainPanel() {
                   <TabsTrigger value="upload" disabled={isProcessing}>Unggah Berkas</TabsTrigger>
                   <TabsTrigger value="text" disabled={isProcessing}>Teks Manual</TabsTrigger>
                 </TabsList>
-                <TabsContent value="upload">
+                <TabsContent value="upload" className="pt-4">
                   <FileUploader
                     onProcessingStart={handleProcessingStart}
                     onProcessingSuccess={handleProcessingSuccess}
                     onProcessingError={handleProcessingError}
                     onProcessingComplete={handleFileProcessed}
                     disabled={isProcessing}
-                    isProcessed={appState === 'fileReady' && inputMode === 'upload'}
+                    isProcessed={appState === 'fileReady' && inputMode === 'upload' || (appState === 'complete' && inputMode === 'upload')}
                   />
                 </TabsContent>
                 <TabsContent value="text">
@@ -237,7 +241,7 @@ export default function MainPanel() {
                           disabled={isProcessing || !isInputReady}
                           size="lg"
                       >
-                          {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                          {isProcessing && appState === 'summarizing' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                           Buat Ringkasan
                       </Button>
                   </div>
@@ -253,7 +257,7 @@ export default function MainPanel() {
             )}
         </div>
 
-        {/* Result Panel */}
+        {/* Result Column */}
         <div className="relative">
             <SummaryDisplay
                 summary={currentSummary}

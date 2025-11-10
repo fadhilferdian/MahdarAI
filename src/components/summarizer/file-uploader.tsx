@@ -178,7 +178,7 @@ export function FileUploader({
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg transition-colors',
+        'flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg transition-colors min-h-[250px]',
         { 'bg-accent/50 border-primary': isDragging && !disabled },
         { 'hover:bg-accent/20 cursor-pointer': !disabled },
         { 'cursor-not-allowed opacity-50': disabled }
