@@ -15,6 +15,8 @@ type FileUploaderProps = {
   isProcessed: boolean;
 };
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
 function fileToDataURI(file: File, onProgress: (progress: number) => void): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -54,6 +56,13 @@ export function FileUploader({
 
   const handleFile = async (file: File) => {
     if (disabled || isProcessing) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      const errorMessage = 'Ukuran berkas tidak boleh melebihi 5MB.';
+      setError(errorMessage);
+      onProcessingError(errorMessage);
+      return;
+    }
 
     onProcessingStart();
     setIsProcessing(true);
@@ -167,7 +176,7 @@ export function FileUploader({
             Seret & lepas berkas di sini atau klik untuk mengunggah
           </p>
           <p className="text-sm text-muted-foreground mt-1">
-            Format yang didukung: .mp3, .wav, .m4a, .pdf, .docx
+            Format yang didukung: .mp3, .wav, .m4a, .pdf, .docx (Maks. 5MB)
           </p>
           {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
         </div>
