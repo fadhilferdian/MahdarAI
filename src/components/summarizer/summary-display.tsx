@@ -123,7 +123,7 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLo
                     <CardContent className="p-6" dir={targetLanguage === 'ar' ? 'rtl' : 'ltr'}>
                         <ScrollArea className="h-[450px] lg:h-[calc(100vh-22rem)]">
                         <div
-                            className={`prose prose-sm dark:prose-invert max-w-none ${targetLanguage === 'ar' ? 'font-arabic text-right' : ''}`}
+                            className={`prose prose-sm dark:prose-invert max-w-none ${targetLanguage === 'ar' ? 'text-right' : ''}`}
                             dangerouslySetInnerHTML={{ __html: formattedSummary }}
                         />
                         </ScrollArea>

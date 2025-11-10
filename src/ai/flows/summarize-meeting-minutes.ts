@@ -51,7 +51,7 @@ const prompt = ai.definePrompt({
   The summary must strictly follow this structure, translated to the {{targetLanguage}}:
   - The heading for the conclusion section must be 'KESIMPULAN' (for Indonesian), 'الخلاصة' (for Arabic), or 'CONCLUSIONS' (for English).
   - The heading for the action items section must be 'ACTION ITEMS' (for Indonesian), 'المهام المطلوبة' (for Arabic), or 'ACTION ITEMS' (for English).
-  - Each heading MUST be followed by a numbered list.
+  - Each heading MUST be followed by a numbered list (e.g., 1., 2., 3.).
 
   Structure example in Indonesian:
   KESIMPULAN

@@ -12,7 +12,7 @@ export default {
       fontFamily: {
         body: ['"Inter"', 'sans-serif'],
         headline: ['"Playfair Display"', 'serif'],
-        arabic: ['"Sakkal Majala"', 'serif'],
+        arabic: ['"Cairo"', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
