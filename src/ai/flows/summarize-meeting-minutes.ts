@@ -48,12 +48,12 @@ const prompt = ai.definePrompt({
 
   Create a summary of the following meeting minutes in {{targetLanguage}}.
 
-  The summary should follow this structure, translated to the {{targetLanguage}}:
-  - Opening
-  - Attendees
-  - Discussion Points
-  - Decisions & Recommendations
-  - Closing
+  The summary must follow this structure, translated to the {{targetLanguage}}:
+  ### KESIMPULAN
+  (A numbered list of the main conclusion points)
+
+  ### ACTION ITEMS
+  (A numbered list of action items or tasks)
 
   Text to summarize: {{{text}}} `,
 });
