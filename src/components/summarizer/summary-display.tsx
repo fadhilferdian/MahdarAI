@@ -23,21 +23,11 @@ const languageTitles = {
     en: 'English',
 }
 
-function formatSummary(summary: string) {
-  return summary
-    .replace(/KESIMPULAN/g, '<strong>KESIMPULAN</strong>')
-    .replace(/CONCLUSIONS/g, '<strong>CONCLUSIONS</strong>')
-    .replace(/الخلاصة/g, '<strong>الخلاصة</strong>')
-    .replace(/ACTION ITEMS/g, '<strong>ACTION ITEMS</strong>')
-    .replace(/المهام المطلوبة/g, '<strong>المهام المطلوبة</strong>');
-}
-
 export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLoading }: SummaryDisplayProps) {
   const { toast } = useToast();
 
   const handleCopy = (text: string) => {
-    const plainText = text.replace(/<strong>|<\/strong>/g, '');
-    navigator.clipboard.writeText(plainText);
+    navigator.clipboard.writeText(text);
     toast({
       title: 'Tersalin ke Papan Klip',
       description: `Ringkasan telah berhasil disalin.`,
@@ -52,8 +42,6 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLo
     });
   };
   
-  const formattedSummary = summary ? formatSummary(summary.summary) : '';
-
   const renderContent = () => {
     if (isLoading && !summary) {
       return (
@@ -125,12 +113,13 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLo
                         <div
                             className={`prose prose-sm dark:prose-invert max-w-none p-6`}
                             style={{ 
-                              fontFamily: targetLanguage === 'ar' ? 'Cairo, sans-serif' : 'inherit',
+                              fontFamily: targetLanguage === 'ar' ? "'Cairo', sans-serif" : 'inherit',
                               whiteSpace: 'pre-line' 
                             }}
                             dir={targetLanguage === 'ar' ? 'rtl' : 'ltr'}
-                            dangerouslySetInnerHTML={{ __html: formattedSummary }}
-                        />
+                        >
+                            {summary.summary}
+                        </div>
                         </ScrollArea>
                     </CardContent>
                 </div>

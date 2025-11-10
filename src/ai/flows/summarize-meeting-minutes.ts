@@ -50,7 +50,7 @@ const prompt = ai.definePrompt({
 
   The summary must strictly follow this structure, translated to the {{targetLanguage}}:
   - The heading for the conclusion section must be 'KESIMPULAN' (for Indonesian), 'الخلاصة' (for Arabic), or 'CONCLUSIONS' (for English).
-  - The heading for the action items section must be 'ACTION ITEMS' (for Indonesian), 'المهام المطلوبة' (for Arabic), or 'ACTION ITEMS' (for English).
+  - The heading for the action items section must be 'المهام المطلوبة' (for Arabic), or 'ACTION ITEMS' (for Indonesian and English).
   - Each heading MUST be followed by a numbered list (e.g., 1., 2., 3. or ١., ٢., ٣. for Arabic).
 
   Structure example in Indonesian:
@@ -62,14 +62,14 @@ const prompt = ai.definePrompt({
   1. Tindakan pertama yang harus dilakukan.
   2. Tindakan kedua yang harus dilakukan.
 
-  Structure example in Arabic:
-  الخلاصة
-  ١. النقطة الأولى في الخلاصة.
-  ٢. النقطة الثانية في الخلاصة.
+  Structure example in Arabic (Strictly follow this formatting with newlines):
+الخلاصة
+١. النقطة الأولى في الخلاصة.
+٢. النقطة الثانية في الخلاصة.
 
-  المهام المطلوبة
-  ١. المهمة الأولى المطلوبة.
-  ٢. المهمة الثانية المطلوبة.
+المهام المطلوبة
+١. المهمة الأولى المطلوبة.
+٢. المهمة الثانية المطلوبة.
 
   Text to summarize: {{{text}}} `,
 });
