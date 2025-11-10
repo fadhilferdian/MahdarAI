@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, type DragEvent } from 'react';
-import { UploadCloud, Loader2 } from 'lucide-react';
+import { UploadCloud, Loader2, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { transcribeAndExtract } from '@/lib/actions';
 import { Progress } from '@/components/ui/progress';
@@ -10,7 +10,9 @@ type FileUploaderProps = {
   onProcessingStart: () => void;
   onProcessingSuccess: (data: { extractedText: string; language: 'id' | 'ar' | 'en' }, filename: string) => void;
   onProcessingError: (error: string) => void;
+  onProcessingComplete: () => void;
   disabled: boolean;
+  isProcessed: boolean;
 };
 
 function fileToDataURI(file: File, onProgress: (progress: number) => void): Promise<string> {
@@ -39,7 +41,9 @@ export function FileUploader({
   onProcessingStart,
   onProcessingSuccess,
   onProcessingError,
+  onProcessingComplete,
   disabled,
+  isProcessed,
 }: FileUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -79,6 +83,7 @@ export function FileUploader({
         onProcessingError(errorMessage);
     } finally {
         setIsProcessing(false);
+        onProcessingComplete();
         setUploadProgress(null);
     }
   };
@@ -117,12 +122,65 @@ export function FileUploader({
     if(fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const renderContent = () => {
+    if (isProcessing) {
+      return (
+         <div className="flex flex-col items-center text-center w-full">
+          {uploadProgress !== null ? (
+            <>
+              <p className="font-semibold">Mengunggah Berkas...</p>
+              <p className="text-sm text-muted-foreground mt-1 truncate max-w-xs">{fileName}</p>
+              <Progress value={uploadProgress} className="w-full max-w-xs mt-4" />
+              <p className="text-sm font-semibold mt-2">{uploadProgress}%</p>
+            </>
+          ) : (
+            <>
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+              <p className="mt-4 font-semibold">Mengekstrak Teks dari Berkas</p>
+              <p className="text-sm text-muted-foreground mt-1 truncate max-w-xs">{fileName}</p>
+              <p className="text-sm text-muted-foreground mt-2">Proses ini mungkin memerlukan beberapa saat...</p>
+            </>
+          )}
+        </div>
+      )
+    }
+
+    if (isProcessed) {
+      return (
+         <div className="flex flex-col items-center text-center">
+          <CheckCircle className="h-12 w-12 text-green-500" />
+          <p className="mt-4 font-semibold">
+            Berkas Berhasil Diproses
+          </p>
+          <p className="text-sm text-muted-foreground mt-1 truncate max-w-xs">{fileName}</p>
+           <p className="text-sm text-muted-foreground mt-2">
+            Silakan pilih bahasa output dan buat ringkasan.
+          </p>
+        </div>
+      )
+    }
+
+    return (
+       <div className="flex flex-col items-center text-center">
+          <UploadCloud className="h-12 w-12 text-muted-foreground" />
+          <p className="mt-4 font-semibold">
+            Seret & lepas berkas di sini atau klik untuk mengunggah
+          </p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Format yang didukung: .mp3, .wav, .m4a, .pdf, .docx
+          </p>
+          {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
+        </div>
+    )
+
+  }
+
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors',
-        { 'bg-accent/50 border-primary': isDragging },
-        { 'hover:bg-accent/20': !disabled },
+        'flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg transition-colors',
+        { 'bg-accent/50 border-primary': isDragging && !disabled },
+        { 'hover:bg-accent/20 cursor-pointer': !disabled },
         { 'cursor-not-allowed opacity-50': disabled }
       )}
       onDragEnter={handleDragEnter}
@@ -139,37 +197,7 @@ export function FileUploader({
         accept=".mp3,.wav,.m4a,.pdf,.docx"
         disabled={disabled}
       />
-
-      {isProcessing || disabled ? (
-        <div className="flex flex-col items-center text-center w-full">
-          {uploadProgress !== null ? (
-            <>
-              <p className="font-semibold">Mengunggah Berkas...</p>
-              <p className="text-sm text-muted-foreground mt-1 truncate max-w-xs">{fileName}</p>
-              <Progress value={uploadProgress} className="w-full max-w-xs mt-4" />
-              <p className="text-sm font-semibold mt-2">{uploadProgress}%</p>
-            </>
-          ) : (
-            <>
-              <Loader2 className="h-12 w-12 animate-spin text-primary" />
-              <p className="mt-4 font-semibold">Sedang Memproses Berkas</p>
-              <p className="text-sm text-muted-foreground mt-1 truncate max-w-xs">{fileName}</p>
-              <p className="text-sm text-muted-foreground mt-2">Proses ini mungkin memerlukan beberapa saat...</p>
-            </>
-          )}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center text-center">
-          <UploadCloud className="h-12 w-12 text-muted-foreground" />
-          <p className="mt-4 font-semibold">
-            Seret & lepas berkas di sini atau klik untuk mengunggah
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Format yang didukung: .mp3, .wav, .m4a, .pdf, .docx
-          </p>
-          {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
-        </div>
-      )}
+      {renderContent()}
     </div>
   );
 }

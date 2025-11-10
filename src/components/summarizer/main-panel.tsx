@@ -13,10 +13,9 @@ import { useToast } from '@/hooks/use-toast';
 import type { SummarizeMeetingMinutesOutput, TranscribeAudioAndExtractTextOutput } from '@/lib/types';
 import { summarize } from '@/lib/actions';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
 
-type AppState = 'idle' | 'processingFile' | 'summarizing' | 'complete';
-type InputMode = 'upload' | 'text' | 'url';
+type AppState = 'idle' | 'processingFile' | 'fileReady' | 'summarizing' | 'complete';
+type InputMode = 'upload' | 'text';
 type Language = 'id' | 'ar' | 'en';
 
 export default function MainPanel() {
@@ -27,39 +26,35 @@ export default function MainPanel() {
   const [targetLanguage, setTargetLanguage] = useState<Language>('id');
   const [summary, setSummary] = useState<SummarizeMeetingMinutesOutput | null>(null);
   const [originalFilename, setOriginalFilename] = useState('');
-  const [url, setUrl] = useState('');
-
+  
   const { toast } = useToast();
 
   const handleProcessingStart = () => {
     setAppState('processingFile');
     setSummary(null);
     setExtractedText('');
+    setOriginalFilename('');
   };
 
-  const handleProcessingSuccess = async (data: TranscribeAudioAndExtractTextOutput, filename: string) => {
+  const handleFileProcessed = () => {
+    setAppState('fileReady');
+  }
+
+  const handleProcessingSuccess = (data: TranscribeAudioAndExtractTextOutput, filename: string) => {
     setExtractedText(data.extractedText);
     setSourceLanguage(data.language);
     setOriginalFilename(filename);
-    await handleSummarize(data.extractedText, data.language, filename);
   };
 
   const handleProcessingError = (error: string) => {
     toast({
-      title: 'Kesalahan Pemrosesan',
+      title: 'Kesalahan Pemrosesan Berkas',
       description: error,
       variant: 'destructive',
     });
     setAppState('idle');
   };
   
-  const handleUrlProcess = () => {
-    toast({
-      title: 'Fitur Belum Tersedia',
-      description: 'Pemrosesan dari URL akan segera hadir.',
-    });
-  }
-
   const handleDirectTextProcess = () => {
     if (!extractedText.trim()) {
       toast({
@@ -71,10 +66,11 @@ export default function MainPanel() {
     }
     const lang: Language = /[\u0600-\u06FF]/.test(extractedText) ? 'ar' : (/[a-zA-Z]/.test(extractedText) ? 'en' : 'id');
     setSourceLanguage(lang);
-    handleSummarize(extractedText, lang, 'Teks Manual');
+    setOriginalFilename('Teks Manual');
+    handleSummarize(extractedText, lang);
   }
 
-  const handleSummarize = async (textToSummarize: string, lang: Language, filename: string) => {
+  const handleSummarize = async (textToSummarize: string, lang: Language) => {
     if (!textToSummarize.trim()) {
       setAppState('idle');
       toast({
@@ -86,7 +82,6 @@ export default function MainPanel() {
     }
     setAppState('summarizing');
     setSummary(null);
-    setOriginalFilename(filename);
     
     const result = await summarize(textToSummarize, lang, targetLanguage);
 
@@ -99,7 +94,7 @@ export default function MainPanel() {
         description: result.error || 'Terjadi kesalahan yang tidak diketahui.',
         variant: 'destructive',
       });
-      setAppState('idle');
+      setAppState('fileReady'); // Return to fileReady state on summarization failure
     }
   };
 
@@ -108,12 +103,10 @@ export default function MainPanel() {
     setExtractedText('');
     setSummary(null);
     setOriginalFilename('');
-    setUrl('');
   };
 
   const isProcessing = appState === 'processingFile' || appState === 'summarizing';
-
-  const showProcessingCard = appState === 'summarizing' && ! (inputMode === 'upload' && appState === 'processingFile');
+  const showProcessingCard = appState === 'summarizing';
 
   return (
     <div className="container py-8 w-full">
@@ -121,17 +114,18 @@ export default function MainPanel() {
         <Card className="w-full max-w-2xl">
           <CardContent className="p-6 space-y-4">
             <Tabs value={inputMode} onValueChange={(value) => setInputMode(value as InputMode)} className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="upload" disabled={isProcessing}>Unggah Berkas</TabsTrigger>
-                <TabsTrigger value="text" disabled={isProcessing}>Teks</TabsTrigger>
-                <TabsTrigger value="url" disabled={isProcessing}>URL</TabsTrigger>
+                <TabsTrigger value="text" disabled={isProcessing}>Teks Manual</TabsTrigger>
               </TabsList>
               <TabsContent value="upload">
                 <FileUploader
                   onProcessingStart={handleProcessingStart}
                   onProcessingSuccess={handleProcessingSuccess}
                   onProcessingError={handleProcessingError}
+                  onProcessingComplete={handleFileProcessed}
                   disabled={isProcessing}
+                  isProcessed={appState === 'fileReady' || appState === 'complete'}
                 />
               </TabsContent>
               <TabsContent value="text">
@@ -140,31 +134,15 @@ export default function MainPanel() {
                           placeholder="Salin atau ketik teks Anda di sini..."
                           rows={12}
                           value={extractedText}
-                          onChange={(e) => setExtractedText(e.target.value)}
+                          onChange={(e) => {
+                            setExtractedText(e.target.value)
+                            if (appState !== 'idle') {
+                                setAppState('idle');
+                                setSummary(null);
+                            }
+                          }}
                           disabled={isProcessing}
                       />
-                      <div className="flex justify-end">
-                          <Button onClick={handleDirectTextProcess} disabled={!extractedText.trim() || isProcessing}>
-                              {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                              Buat Ringkasan
-                          </Button>
-                      </div>
-                  </div>
-              </TabsContent>
-              <TabsContent value="url">
-              <div className="space-y-4 pt-4">
-                      <Input
-                          type="url"
-                          placeholder="https://example.com/article"
-                          value={url}
-                          onChange={(e) => setUrl(e.target.value)}
-                          disabled={isProcessing}
-                      />
-                       <div className="flex justify-end">
-                          <Button onClick={handleUrlProcess} disabled={!url.trim() || isProcessing}>
-                              Proses URL
-                          </Button>
-                      </div>
                   </div>
               </TabsContent>
             </Tabs>
@@ -197,6 +175,18 @@ export default function MainPanel() {
                     </Button>
                 </div>
             </div>
+             {(appState === 'fileReady' || (inputMode === 'text' && extractedText.trim() && appState !== 'complete' && appState !== 'summarizing')) && (
+                 <div className="flex justify-center pt-4">
+                     <Button 
+                        onClick={() => inputMode === 'upload' ? handleSummarize(extractedText, sourceLanguage) : handleDirectTextProcess()} 
+                        disabled={isProcessing}
+                        size="lg"
+                     >
+                        {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        Buat Ringkasan
+                     </Button>
+                 </div>
+             )}
           </CardContent>
         </Card>
         
