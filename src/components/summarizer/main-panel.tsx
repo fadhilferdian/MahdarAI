@@ -108,12 +108,10 @@ export default function MainPanel() {
 
   const handleTargetLanguageChange = (newLang: Language) => {
     setTargetLanguage(newLang);
-    // Check cache and update summary if it exists, but don't trigger a new summary
     if (summariesCache[newLang]) {
       setCurrentSummary(summariesCache[newLang]!);
       setAppState('complete');
     } else {
-      // If not in cache, just clear the current summary and wait for user to click button
       setCurrentSummary(null);
       if (appState === 'complete') {
         setAppState('fileReady');
@@ -133,7 +131,6 @@ export default function MainPanel() {
   };
 
   const isProcessing = appState === 'processingFile' || appState === 'summarizing';
-  const isInputReady = appState === 'fileReady' || appState === 'complete' || appState === 'summarizing';
 
   return (
     <div className="container py-8 w-full h-full">
@@ -192,7 +189,7 @@ export default function MainPanel() {
                               disabled={isProcessing}
                               className="flex-1 min-w-[140px] sm:flex-none"
                           >
-                              Bahasa Indonesia
+                              🇮🇩 Bahasa Indonesia
                           </Button>
                           <Button
                               variant={targetLanguage === 'en' ? 'default' : 'outline'}
@@ -200,7 +197,7 @@ export default function MainPanel() {
                               disabled={isProcessing}
                               className="flex-1 min-w-[140px] sm:flex-none"
                           >
-                              English
+                              🇬🇧 English
                           </Button>
                           <Button
                               variant={targetLanguage === 'ar' ? 'default' : 'outline'}
@@ -208,7 +205,7 @@ export default function MainPanel() {
                               disabled={isProcessing}
                               className="flex-1 min-w-[140px] sm:flex-none"
                           >
-                              اللغة العربية
+                              🇸🇦 اللغة العربية
                           </Button>
                       </div>
                   </div>
@@ -218,7 +215,7 @@ export default function MainPanel() {
                           disabled={isProcessing || appState === 'idle' || appState === 'processingFile'}
                           size="lg"
                       >
-                          {isProcessing && appState === 'summarizing' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                          {isProcessing && appState === 'summarizing' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : '✨'}
                           Buat Ringkasan
                       </Button>
                   </div>
@@ -228,7 +225,7 @@ export default function MainPanel() {
            {appState === 'complete' && (
               <div className="flex justify-center">
                   <Button variant="outline" onClick={handleReset} disabled={isProcessing}>
-                      Buat Ringkasan Baru
+                      ➕ Buat Ringkasan Baru
                   </Button>
               </div>
             )}
