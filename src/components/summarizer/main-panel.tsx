@@ -5,7 +5,7 @@ import { FileUploader } from './file-uploader';
 import { SummaryDisplay } from './summary-display';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -108,12 +108,10 @@ export default function MainPanel() {
 
   const handleTargetLanguageChange = (newLang: Language) => {
     setTargetLanguage(newLang);
-    if (appState === 'complete' || appState === 'fileReady') {
-      // If cached, show immediately
+    if (appState === 'complete') {
       if (summariesCache[newLang]) {
         setCurrentSummary(summariesCache[newLang]!);
-      } else if(currentSummary) {
-        // if there's an active summary, generate the new one
+      } else {
         handleSummarizeBasedOnNewLang(newLang);
       }
     }
@@ -152,15 +150,20 @@ export default function MainPanel() {
   const showSummaryControls = appState === 'fileReady' || appState === 'complete' || appState === 'summarizing';
 
   return (
-    <div className="container py-8 w-full">
-      <div className="flex flex-col items-center space-y-8">
+    <div className="container py-8 w-full h-full">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
         
-        <Card className="w-full max-w-2xl">
-            <CardContent className="p-6 space-y-4">
+        {/* Input Panel */}
+        <div className="flex flex-col space-y-6">
+          <Card className="flex-grow">
+            <CardHeader>
+                <CardTitle className="font-headline text-2xl">Input Data</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <Tabs 
                 value={inputMode} 
                 onValueChange={(value) => {
-                  if(!isProcessing) setInputMode(value as InputMode)
+                  if(!isProcessing) handleReset(); setInputMode(value as InputMode)
                 }} 
                 className="w-full"
               >
@@ -193,87 +196,72 @@ export default function MainPanel() {
             </CardContent>
           </Card>
 
-        {showSummaryControls && (
-            <div className="w-full max-w-2xl space-y-6">
-                <Card>
-                    <CardContent className="p-6">
-                        <div className="space-y-3">
-                            <Label htmlFor="target-language" className="text-center block">Pilih Bahasa Hasil Ringkasan</Label>
-                            <div className="flex flex-wrap justify-center gap-2">
-                                <Button
-                                    variant={targetLanguage === 'id' ? 'default' : 'outline'}
-                                    onClick={() => handleTargetLanguageChange('id')}
-                                    disabled={isProcessing}
-                                    className="flex-1 min-w-[140px] sm:flex-none"
-                                >
-                                    Bahasa Indonesia
-                                </Button>
-                                <Button
-                                    variant={targetLanguage === 'en' ? 'default' : 'outline'}
-                                    onClick={() => handleTargetLanguageChange('en')}
-                                    disabled={isProcessing}
-                                    className="flex-1 min-w-[140px] sm:flex-none"
-                                >
-                                    English
-                                </Button>
-                                <Button
-                                    variant={targetLanguage === 'ar' ? 'default' : 'outline'}
-                                    onClick={() => handleTargetLanguageChange('ar')}
-                                    disabled={isProcessing}
-                                    className="flex-1 min-w-[140px] sm:flex-none"
-                                >
-                                    اللغة العربية
-                                </Button>
-                            </div>
-                        </div>
-                         {(appState === 'fileReady' && !currentSummary) && (
-                            <div className="flex justify-center pt-6">
-                                <Button 
-                                    onClick={handleSummarize} 
-                                    disabled={isProcessing}
-                                    size="lg"
-                                >
-                                    {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                    Buat Ringkasan
-                                </Button>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-            </div>
-        )}
+          {showSummaryControls && (
+              <Card>
+                  <CardContent className="p-6 space-y-6">
+                      <div className="space-y-3">
+                          <Label htmlFor="target-language" className="text-center block">Pilih Bahasa Hasil Ringkasan</Label>
+                          <div className="flex flex-wrap justify-center gap-2">
+                              <Button
+                                  variant={targetLanguage === 'id' ? 'default' : 'outline'}
+                                  onClick={() => handleTargetLanguageChange('id')}
+                                  disabled={isProcessing}
+                                  className="flex-1 min-w-[140px] sm:flex-none"
+                              >
+                                  Bahasa Indonesia
+                              </Button>
+                              <Button
+                                  variant={targetLanguage === 'en' ? 'default' : 'outline'}
+                                  onClick={() => handleTargetLanguageChange('en')}
+                                  disabled={isProcessing}
+                                  className="flex-1 min-w-[140px] sm:flex-none"
+                              >
+                                  English
+                              </Button>
+                              <Button
+                                  variant={targetLanguage === 'ar' ? 'default' : 'outline'}
+                                  onClick={() => handleTargetLanguageChange('ar')}
+                                  disabled={isProcessing}
+                                  className="flex-1 min-w-[140px] sm:flex-none"
+                              >
+                                  اللغة العربية
+                              </Button>
+                          </div>
+                      </div>
+                       {(appState === 'fileReady' && !currentSummary) && (
+                          <div className="flex justify-center pt-2">
+                              <Button 
+                                  onClick={handleSummarize} 
+                                  disabled={isProcessing}
+                                  size="lg"
+                              >
+                                  {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                  Buat Ringkasan
+                              </Button>
+                          </div>
+                      )}
+                  </CardContent>
+              </Card>
+          )}
 
-        {(currentSummary || appState === 'summarizing') && (
-            <div className="w-full max-w-2xl relative">
-                {appState === 'summarizing' && (
-                     <div className="absolute inset-0 bg-background/80 dark:bg-background/80 z-10 flex items-center justify-center rounded-lg">
-                        <div className="flex flex-col items-center text-center">
-                            <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                             <p className="mt-4 font-semibold">
-                                Sedang Membuat Ringkasan...
-                            </p>
-                            <p className="text-sm text-muted-foreground mt-1">
-                                Proses ini mungkin memerlukan beberapa saat.
-                            </p>
-                        </div>
-                     </div>
-                )}
-                {currentSummary && (
-                    <div className="space-y-8">
-                        <SummaryDisplay
-                            summary={currentSummary}
-                            originalFilename={originalFilename}
-                            targetLanguage={targetLanguage}
-                        />
-                         <div className="flex justify-center">
-                            <Button variant="outline" onClick={handleReset} disabled={isProcessing}>
-                                Buat Ringkasan Baru
-                            </Button>
-                        </div>
-                    </div>
-                )}
-            </div>
-        )}
+           {appState === 'complete' && (
+              <div className="flex justify-center">
+                  <Button variant="outline" onClick={handleReset} disabled={isProcessing}>
+                      Buat Ringkasan Baru
+                  </Button>
+              </div>
+            )}
+        </div>
+
+        {/* Result Panel */}
+        <div className="relative">
+            <SummaryDisplay
+                summary={currentSummary}
+                originalFilename={originalFilename}
+                targetLanguage={targetLanguage}
+                isLoading={appState === 'summarizing'}
+            />
+        </div>
       </div>
     </div>
   );

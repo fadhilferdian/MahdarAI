@@ -23,9 +23,9 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="font-body antialiased min-h-screen flex flex-col">
+      <body className="font-body antialiased min-h-screen flex flex-col bg-background">
         <Header />
-        <main className="flex-grow flex items-center justify-center">{children}</main>
+        <main className="flex-grow">{children}</main>
         <Toaster />
       </body>
     </html>
