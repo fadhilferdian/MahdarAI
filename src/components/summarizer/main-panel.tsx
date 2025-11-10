@@ -109,36 +109,18 @@ export default function MainPanel() {
 
   const handleTargetLanguageChange = (newLang: Language) => {
     setTargetLanguage(newLang);
-    if (appState === 'complete' || appState === 'fileReady' || appState === 'summarizing') {
-      if (summariesCache[newLang]) {
-        setCurrentSummary(summariesCache[newLang]!);
-        setAppState('complete');
-      } else {
-        handleSummarizeBasedOnNewLang(newLang);
-      }
-    }
-  }
-
-  const handleSummarizeBasedOnNewLang = async (newLang: Language) => {
-    if(!extractedText.trim()){
-      return;
-    }
-    setAppState('summarizing');
-    const result = await summarize(extractedText, sourceLanguage, newLang);
-     if (result.success && result.data) {
-      const newCache = { ...summariesCache, [newLang]: result.data };
-      setSummariesCache(newCache);
-      setCurrentSummary(result.data);
+    // Check cache and update summary if it exists, but don't trigger a new summary
+    if (summariesCache[newLang]) {
+      setCurrentSummary(summariesCache[newLang]!);
       setAppState('complete');
     } else {
-      toast({
-        title: 'Gagal Membuat Ringkasan',
-        description: result.error || 'Terjadi kesalahan yang tidak diketahui.',
-        variant: 'destructive',
-      });
-      setAppState(currentSummary ? 'complete' : 'fileReady');
+      // If not in cache, just clear the current summary and wait for user to click button
+      setCurrentSummary(null);
+      if (appState === 'complete') {
+        setAppState('fileReady');
+      }
     }
-  }
+  };
 
 
   const handleReset = () => {
