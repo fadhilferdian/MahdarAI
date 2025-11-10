@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -144,7 +143,7 @@ export default function MainPanel() {
         <div className="flex flex-col space-y-6">
           <Card className="flex-grow">
             <CardHeader>
-                <CardTitle className="font-headline text-2xl">Input Data</CardTitle>
+                <CardTitle className="font-headline text-2xl">Upload File atau Tulis Di sini</CardTitle>
             </CardHeader>
             <CardContent>
               <Tabs 
