@@ -25,7 +25,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased min-h-screen flex flex-col bg-background">
         <Header />
-        <main className="flex-grow flex items-center">{children}</main>
+        <main className="flex-grow flex items-center justify-center">{children}</main>
         <Toaster />
       </body>
     </html>
