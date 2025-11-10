@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FileUploader } from './file-uploader';
 import { SummaryDisplay } from './summary-display';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,10 @@ export default function MainPanel() {
   const [originalFilename, setOriginalFilename] = useState('');
   
   const { toast } = useToast();
+
+  useEffect(() => {
+    document.documentElement.dir = targetLanguage === 'ar' ? 'rtl' : 'ltr';
+  }, [targetLanguage]);
 
   const handleProcessingStart = () => {
     setAppState('processingFile');
@@ -204,7 +208,7 @@ export default function MainPanel() {
                           <Button
                               variant={targetLanguage === 'id' ? 'default' : 'outline'}
                               onClick={() => handleTargetLanguageChange('id')}
-                              disabled={isProcessing || !isInputReady}
+                              disabled={isProcessing}
                               className="flex-1 min-w-[140px] sm:flex-none"
                           >
                               Bahasa Indonesia
@@ -212,7 +216,7 @@ export default function MainPanel() {
                           <Button
                               variant={targetLanguage === 'en' ? 'default' : 'outline'}
                               onClick={() => handleTargetLanguageChange('en')}
-                              disabled={isProcessing || !isInputReady}
+                              disabled={isProcessing}
                               className="flex-1 min-w-[140px] sm:flex-none"
                           >
                               English
@@ -220,7 +224,7 @@ export default function MainPanel() {
                           <Button
                               variant={targetLanguage === 'ar' ? 'default' : 'outline'}
                               onClick={() => handleTargetLanguageChange('ar')}
-                              disabled={isProcessing || !isInputReady}
+                              disabled={isProcessing}
                               className="flex-1 min-w-[140px] sm:flex-none"
                           >
                               اللغة العربية

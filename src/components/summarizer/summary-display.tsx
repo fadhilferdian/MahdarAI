@@ -109,7 +109,7 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLo
                      </div>
                 )}
                 <div className={isLoading ? 'opacity-50' : ''}>
-                    <div className="flex items-center justify-between p-4 border-b" dir={targetLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    <div className="flex items-center justify-between p-4 border-b">
                         <h4 className="font-semibold">{languageTitles[targetLanguage]}</h4>
                         <Button
                         variant="ghost"
