@@ -3,8 +3,8 @@
 import { useState, useRef, type DragEvent } from 'react';
 import { UploadCloud, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Card, CardContent } from '@/components/ui/card';
 import { transcribeAndExtract } from '@/lib/actions';
+import { Progress } from '@/components/ui/progress';
 
 type FileUploaderProps = {
   onProcessingStart: () => void;
@@ -13,13 +13,24 @@ type FileUploaderProps = {
   disabled: boolean;
 };
 
-function fileToDataURI(file: File): Promise<string> {
+function fileToDataURI(file: File, onProgress: (progress: number) => void): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
+    
+    reader.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const progress = Math.round((event.loaded / event.total) * 100);
+        onProgress(progress);
+      }
+    };
+
     reader.onload = () => {
+      onProgress(100);
       resolve(reader.result as string);
     };
+
     reader.onerror = reject;
+
     reader.readAsDataURL(file);
   });
 }
@@ -34,6 +45,7 @@ export function FileUploader({
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File) => {
@@ -43,9 +55,16 @@ export function FileUploader({
     setIsProcessing(true);
     setError(null);
     setFileName(file.name);
+    setUploadProgress(0);
 
     try {
-      const dataUri = await fileToDataURI(file);
+      const dataUri = await fileToDataURI(file, (progress) => {
+        setUploadProgress(progress);
+      });
+      
+      // After upload (reading file) is complete, we show "processing"
+      // before calling the AI.
+      setUploadProgress(null); 
 
       const result = await transcribeAndExtract(dataUri, file.name);
 
@@ -62,6 +81,7 @@ export function FileUploader({
         onProcessingError(errorMessage);
     } finally {
         setIsProcessing(false);
+        setUploadProgress(null);
     }
   };
 
@@ -124,11 +144,22 @@ export function FileUploader({
       />
 
       {isProcessing || disabled ? (
-        <div className="flex flex-col items-center text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-primary" />
-          <p className="mt-4 font-semibold">Processing File</p>
-          <p className="text-sm text-muted-foreground mt-1 truncate max-w-xs">{fileName}</p>
-          <p className="text-sm text-muted-foreground mt-2">This may take a few moments...</p>
+        <div className="flex flex-col items-center text-center w-full">
+          {uploadProgress !== null ? (
+            <>
+              <p className="font-semibold">Mengunggah File...</p>
+              <p className="text-sm text-muted-foreground mt-1 truncate max-w-xs">{fileName}</p>
+              <Progress value={uploadProgress} className="w-full max-w-xs mt-4" />
+              <p className="text-sm font-semibold mt-2">{uploadProgress}%</p>
+            </>
+          ) : (
+            <>
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+              <p className="mt-4 font-semibold">Processing File</p>
+              <p className="text-sm text-muted-foreground mt-1 truncate max-w-xs">{fileName}</p>
+              <p className="text-sm text-muted-foreground mt-2">This may take a few moments...</p>
+            </>
+          )}
         </div>
       ) : (
         <div className="flex flex-col items-center text-center">

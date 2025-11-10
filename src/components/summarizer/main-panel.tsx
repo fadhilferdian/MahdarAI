@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
 type AppState = 'idle' | 'processingFile' | 'summarizing' | 'complete';
-type InputMode = 'text' | 'upload' | 'url';
+type InputMode = 'upload' | 'text' | 'url';
 type Language = 'id' | 'ar' | 'en';
 
 export default function MainPanel() {
@@ -76,9 +76,10 @@ export default function MainPanel() {
 
   const handleSummarize = async (textToSummarize: string, lang: Language, filename: string) => {
     if (!textToSummarize.trim()) {
+      setAppState('idle');
       toast({
-        title: 'No Text',
-        description: 'There is no text to summarize.',
+        title: 'No Text to Summarize',
+        description: 'The file appears to be empty or could not be read.',
         variant: 'destructive',
       });
       return;
@@ -108,9 +109,12 @@ export default function MainPanel() {
     setSummary(null);
     setOriginalFilename('');
     setUrl('');
+    // Do not reset inputMode or targetLanguage
   };
 
   const isProcessing = appState === 'processingFile' || appState === 'summarizing';
+
+  const showProcessingCard = appState === 'summarizing' && ! (inputMode === 'upload' && appState === 'processingFile');
 
   return (
     <div className="container py-8 w-full">
@@ -142,6 +146,7 @@ export default function MainPanel() {
                       />
                       <div className="flex justify-end">
                           <Button onClick={handleDirectTextProcess} disabled={!extractedText.trim() || isProcessing}>
+                              {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                               Buat Ringkasan
                           </Button>
                       </div>
@@ -196,12 +201,12 @@ export default function MainPanel() {
           </CardContent>
         </Card>
         
-        {isProcessing && (
+        {showProcessingCard && (
              <Card className="w-full max-w-2xl">
                 <CardContent className="p-6 flex flex-col items-center justify-center text-center">
                     <Loader2 className="h-12 w-12 animate-spin text-primary" />
                     <p className="mt-4 font-semibold">
-                        {appState === 'processingFile' ? 'Mengekstrak Teks...' : 'Membuat Ringkasan...'}
+                        Membuat Ringkasan...
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">
                         Ini mungkin perlu beberapa saat.
