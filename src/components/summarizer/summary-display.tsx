@@ -65,19 +65,31 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLo
 
     return (
         <>
-            <CardHeader className="flex flex-row items-start justify-between">
-                <div>
-                    <CardTitle className="font-headline text-2xl">Hasil Ringkasan</CardTitle>
-                    <p className="text-sm text-muted-foreground">Sumber: {originalFilename}</p>
+            <CardHeader>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between w-full">
+                    <div>
+                        <CardTitle className="font-headline text-2xl">Hasil Ringkasan</CardTitle>
+                        <p className="text-sm text-muted-foreground mt-1">Sumber: {originalFilename}</p>
+                    </div>
+                    <div className="hidden sm:flex items-center space-x-2 pt-2">
+                        <Button variant="outline" size="sm" onClick={() => handleDownload('PDF')}>
+                            <Download className="mr-2 h-4 w-4" />
+                            Unduh PDF
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => handleDownload('DOCX')}>
+                            <Download className="mr-2 h-4 w-4" />
+                            Unduh DOCX
+                        </Button>
+                    </div>
                 </div>
-                 <div className="flex items-center space-x-2 pt-2">
-                    <Button variant="outline" size="sm" onClick={() => handleDownload('PDF')}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Unduh PDF
+                <div className="flex sm:hidden items-center space-x-2 pt-4">
+                     <Button variant="outline" size="sm" className="flex-1" onClick={() => handleDownload('PDF')}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Unduh PDF
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleDownload('DOCX')}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Unduh DOCX
+                    <Button variant="outline" size="sm" className="flex-1" onClick={() => handleDownload('DOCX')}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Unduh DOCX
                     </Button>
                 </div>
             </CardHeader>
@@ -109,7 +121,7 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLo
                         </Button>
                     </div>
                     <CardContent className="p-0">
-                        <ScrollArea className="h-[450px] lg:h-[calc(100vh-22rem)]">
+                        <ScrollArea className="h-[450px] lg:h-[calc(100vh-24rem)]">
                         <div
                             className={`prose prose-sm dark:prose-invert max-w-none p-6`}
                             style={{ 
