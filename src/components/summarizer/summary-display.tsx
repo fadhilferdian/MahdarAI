@@ -120,10 +120,11 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLo
                         <Copy className="h-4 w-4" />
                         </Button>
                     </div>
-                    <CardContent className="p-6" dir={targetLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    <CardContent className="p-0">
                         <ScrollArea className="h-[450px] lg:h-[calc(100vh-22rem)]">
                         <div
-                            className={`prose prose-sm dark:prose-invert max-w-none ${targetLanguage === 'ar' ? 'text-right' : ''}`}
+                            className={`prose prose-sm dark:prose-invert max-w-none p-6 ${targetLanguage === 'ar' ? 'text-right' : ''}`}
+                            dir={targetLanguage === 'ar' ? 'rtl' : 'ltr'}
                             dangerouslySetInnerHTML={{ __html: formattedSummary }}
                         />
                         </ScrollArea>
