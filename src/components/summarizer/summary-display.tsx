@@ -20,11 +20,19 @@ const languageTitles = {
     en: 'English',
 }
 
+function formatSummary(summary: string) {
+  return summary
+    .replace(/KESIMPULAN:|الاستنتاجات:|CONCLUSIONS:/g, '<strong>KESIMPULAN:</strong>')
+    .replace(/ACTION ITEMS:|بنود العمل:|ACTION ITEMS:/g, '<strong>ACTION ITEMS:</strong>')
+    .replace(/\n/g, '<br />');
+}
+
 export function SummaryDisplay({ summary, originalFilename, targetLanguage }: SummaryDisplayProps) {
   const { toast } = useToast();
 
   const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
+    const plainText = text.replace(/<br \/>/g, '\n').replace(/<strong>|<\/strong>/g, '');
+    navigator.clipboard.writeText(plainText);
     toast({
       title: 'Tersalin ke Papan Klip',
       description: `Ringkasan telah berhasil disalin.`,
@@ -38,6 +46,8 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage }: Su
       variant: 'default',
     });
   };
+  
+  const formattedSummary = formatSummary(summary.summary);
 
   return (
     <div className="w-full space-y-6">
@@ -73,9 +83,10 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage }: Su
           <Separator />
           <CardContent className="p-6" dir={targetLanguage === 'ar' ? 'rtl' : 'ltr'}>
             <ScrollArea className="h-[500px]">
-              <div className={`prose prose-sm dark:prose-invert max-w-none ${targetLanguage === 'ar' ? 'font-arabic text-right' : ''}`}>
-                 <p className="whitespace-pre-wrap">{summary.summary}</p>
-              </div>
+              <div
+                className={`prose prose-sm dark:prose-invert max-w-none ${targetLanguage === 'ar' ? 'font-arabic text-right' : ''}`}
+                dangerouslySetInnerHTML={{ __html: formattedSummary }}
+              />
             </ScrollArea>
           </CardContent>
         </Card>

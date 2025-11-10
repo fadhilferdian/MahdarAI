@@ -49,10 +49,10 @@ const prompt = ai.definePrompt({
   Create a summary of the following meeting minutes in {{targetLanguage}}.
 
   The summary must follow this structure, translated to the {{targetLanguage}}:
-  ### KESIMPULAN
+  KESIMPULAN:
   (A numbered list of the main conclusion points)
 
-  ### ACTION ITEMS
+  ACTION ITEMS:
   (A numbered list of action items or tasks)
 
   Text to summarize: {{{text}}} `,
