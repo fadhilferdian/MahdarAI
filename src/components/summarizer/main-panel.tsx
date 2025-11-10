@@ -171,7 +171,7 @@ export default function MainPanel() {
                         variant={targetLanguage === 'id' ? 'default' : 'outline'}
                         onClick={() => setTargetLanguage('id')}
                         disabled={isProcessing}
-                        className={cn('flex-grow sm:flex-grow-0')}
+                        className="flex-1 sm:flex-none"
                     >
                         Bahasa Indonesia
                     </Button>
@@ -179,7 +179,7 @@ export default function MainPanel() {
                         variant={targetLanguage === 'en' ? 'default' : 'outline'}
                         onClick={() => setTargetLanguage('en')}
                         disabled={isProcessing}
-                        className={cn('flex-grow sm:flex-grow-0')}
+                        className="flex-1 sm:flex-none"
                     >
                         English
                     </Button>
@@ -187,7 +187,7 @@ export default function MainPanel() {
                         variant={targetLanguage === 'ar' ? 'default' : 'outline'}
                         onClick={() => setTargetLanguage('ar')}
                         disabled={isProcessing}
-                        className={cn('flex-grow sm:flex-grow-0')}
+                        className="flex-1 sm:flex-none"
                     >
                         اللغة العربية
                     </Button>
