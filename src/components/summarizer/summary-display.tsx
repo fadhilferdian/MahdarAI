@@ -24,8 +24,11 @@ const languageTitles = {
 
 function formatSummary(summary: string) {
   return summary
-    .replace(/KESIMPULAN:|الاستنتاجات:|CONCLUSIONS:/g, '<strong>KESIMPULAN:</strong>')
-    .replace(/ACTION ITEMS:|بنود العمل:|ACTION ITEMS:/g, '<strong>ACTION ITEMS:</strong>')
+    .replace(/KESIMPULAN/g, '<strong>KESIMPULAN</strong>')
+    .replace(/CONCLUSIONS/g, '<strong>CONCLUSIONS</strong>')
+    .replace(/الخلاصة/g, '<strong>الخلاصة</strong>')
+    .replace(/ACTION ITEMS/g, '<strong>ACTION ITEMS</strong>')
+    .replace(/المهام المطلوبة/g, '<strong>المهام المطلوبة</strong>')
     .replace(/\n/g, '<br />');
 }
 
@@ -52,6 +55,16 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLo
   const formattedSummary = summary ? formatSummary(summary.summary) : '';
 
   const renderContent = () => {
+    if (isLoading && !summary) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full text-center p-8">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <p className="mt-4 font-semibold">Sedang Membuat Ringkasan...</p>
+            <p className="text-sm text-muted-foreground mt-1">Proses ini mungkin memerlukan beberapa saat.</p>
+        </div>
+      )
+    }
+
     if (!summary) {
         return (
             <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground p-8">
@@ -87,7 +100,7 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLo
                         <div className="flex flex-col items-center text-center">
                             <Loader2 className="h-12 w-12 animate-spin text-primary" />
                              <p className="mt-4 font-semibold">
-                                Sedang Membuat Ringkasan...
+                                Sedang Memperbarui Ringkasan...
                             </p>
                             <p className="text-sm text-muted-foreground mt-1">
                                 Proses ini mungkin memerlukan beberapa saat.
@@ -122,7 +135,7 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLo
   }
 
   return (
-    <Card className="h-full">
+    <Card className="h-full flex flex-col">
       {renderContent()}
     </Card>
   );

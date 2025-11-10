@@ -48,12 +48,19 @@ const prompt = ai.definePrompt({
 
   Create a summary of the following meeting minutes in {{targetLanguage}}.
 
-  The summary must follow this structure, translated to the {{targetLanguage}}:
-  KESIMPULAN:
-  (A numbered list of the main conclusion points)
+  The summary must strictly follow this structure, translated to the {{targetLanguage}}:
+  - The heading for the conclusion section must be 'KESIMPULAN' (for Indonesian), 'الخلاصة' (for Arabic), or 'CONCLUSIONS' (for English).
+  - The heading for the action items section must be 'ACTION ITEMS' (for Indonesian), 'المهام المطلوبة' (for Arabic), or 'ACTION ITEMS' (for English).
+  - Each heading MUST be followed by a numbered list.
 
-  ACTION ITEMS:
-  (A numbered list of action items or tasks)
+  Structure example in Indonesian:
+  KESIMPULAN
+  1. Poin pertama kesimpulan.
+  2. Poin kedua kesimpulan.
+
+  ACTION ITEMS
+  1. Tindakan pertama yang harus dilakukan.
+  2. Tindakan kedua yang harus dilakukan.
 
   Text to summarize: {{{text}}} `,
 });
