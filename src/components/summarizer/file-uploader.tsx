@@ -138,7 +138,7 @@ export function FileUploader({
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
               <p className="mt-4 font-semibold">Mengekstrak Teks dari Berkas</p>
               <p className="text-sm text-muted-foreground mt-1 truncate max-w-xs">{fileName}</p>
-              <p className="text-sm text-muted-foreground mt-2">Proses ini mungkin memerlukan beberapa saat...</p>
+              <p className="text-sm text-muted-foreground mt-2">Sedang diproses, silahkan seruput kopi anda...</p>
             </>
           )}
         </div>

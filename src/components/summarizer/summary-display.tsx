@@ -60,7 +60,7 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLo
         <div className="flex flex-col items-center justify-center h-full text-center p-8">
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
             <p className="mt-4 font-semibold">Sedang Membuat Ringkasan...</p>
-            <p className="text-sm text-muted-foreground mt-1">Proses ini mungkin memerlukan beberapa saat.</p>
+            <p className="text-sm text-muted-foreground mt-1">Sedang diproses, silahkan seruput kopi anda...</p>
         </div>
       )
     }
@@ -103,7 +103,7 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLo
                                 Sedang Memperbarui Ringkasan...
                             </p>
                             <p className="text-sm text-muted-foreground mt-1">
-                                Proses ini mungkin memerlukan beberapa saat.
+                                Sedang diproses, silahkan seruput kopi anda...
                             </p>
                         </div>
                      </div>
