@@ -53,14 +53,14 @@ const prompt = ai.definePrompt({
   - The heading for the action items section must be 'المهام المطلوبة' (for Arabic), or 'ACTION ITEMS' (for Indonesian and English).
   - Each heading MUST be followed by a numbered list (e.g., 1., 2., 3. or ١., ٢., ٣. for Arabic).
 
-  Structure example in Indonesian:
-  KESIMPULAN
-  1. Poin pertama kesimpulan.
-  2. Poin kedua kesimpulan.
+  Structure example in Indonesian (Strictly follow this formatting with newlines):
+KESIMPULAN
+1. Poin pertama kesimpulan.
+2. Poin kedua kesimpulan.
 
-  ACTION ITEMS
-  1. Tindakan pertama yang harus dilakukan.
-  2. Tindakan kedua yang harus dilakukan.
+ACTION ITEMS
+1. Tindakan pertama yang harus dilakukan.
+2. Tindakan kedua yang harus dilakukan.
 
   Structure example in Arabic (Strictly follow this formatting with newlines):
 الخلاصة
