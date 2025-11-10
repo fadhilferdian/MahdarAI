@@ -46,7 +46,7 @@ export default function MainPanel() {
 
   const handleProcessingError = (error: string) => {
     toast({
-      title: 'Processing Error',
+      title: 'Kesalahan Pemrosesan',
       description: error,
       variant: 'destructive',
     });
@@ -78,8 +78,8 @@ export default function MainPanel() {
     if (!textToSummarize.trim()) {
       setAppState('idle');
       toast({
-        title: 'No Text to Summarize',
-        description: 'The file appears to be empty or could not be read.',
+        title: 'Tidak Ada Teks untuk Diringkas',
+        description: 'Berkas tampaknya kosong atau tidak dapat dibaca.',
         variant: 'destructive',
       });
       return;
@@ -95,8 +95,8 @@ export default function MainPanel() {
       setAppState('complete');
     } else {
       toast({
-        title: 'Summarization Failed',
-        description: result.error || 'An unknown error occurred.',
+        title: 'Gagal Membuat Ringkasan',
+        description: result.error || 'Terjadi kesalahan yang tidak diketahui.',
         variant: 'destructive',
       });
       setAppState('idle');
@@ -109,7 +109,6 @@ export default function MainPanel() {
     setSummary(null);
     setOriginalFilename('');
     setUrl('');
-    // Do not reset inputMode or targetLanguage
   };
 
   const isProcessing = appState === 'processingFile' || appState === 'summarizing';
@@ -123,7 +122,7 @@ export default function MainPanel() {
           <CardContent className="p-6 space-y-4">
             <Tabs value={inputMode} onValueChange={(value) => setInputMode(value as InputMode)} className="w-full">
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="upload" disabled={isProcessing}>Unggah File</TabsTrigger>
+                <TabsTrigger value="upload" disabled={isProcessing}>Unggah Berkas</TabsTrigger>
                 <TabsTrigger value="text" disabled={isProcessing}>Teks</TabsTrigger>
                 <TabsTrigger value="url" disabled={isProcessing}>URL</TabsTrigger>
               </TabsList>
@@ -138,7 +137,7 @@ export default function MainPanel() {
               <TabsContent value="text">
                   <div className="space-y-4 pt-4">
                       <Textarea
-                          placeholder="Tempel atau ketik teks Anda di sini..."
+                          placeholder="Salin atau ketik teks Anda di sini..."
                           rows={12}
                           value={extractedText}
                           onChange={(e) => setExtractedText(e.target.value)}
@@ -206,10 +205,10 @@ export default function MainPanel() {
                 <CardContent className="p-6 flex flex-col items-center justify-center text-center">
                     <Loader2 className="h-12 w-12 animate-spin text-primary" />
                     <p className="mt-4 font-semibold">
-                        Membuat Ringkasan...
+                        Sedang Membuat Ringkasan...
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">
-                        Ini mungkin perlu beberapa saat.
+                        Proses ini mungkin memerlukan beberapa saat.
                     </p>
                 </CardContent>
              </Card>

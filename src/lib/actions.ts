@@ -15,7 +15,7 @@ export async function transcribeAndExtract(dataUri: string, filename: string) {
   'use server';
   try {
     if (!dataUri) {
-      throw new Error('No data URI provided.');
+      throw new Error('Tidak ada data URI yang diberikan.');
     }
 
     const input: TranscribeAudioAndExtractTextInput = {
@@ -26,13 +26,13 @@ export async function transcribeAndExtract(dataUri: string, filename: string) {
     const result = await transcribeAudioAndExtractText(input);
 
     if (!result || !result.extractedText) {
-        throw new Error('AI failed to extract text.');
+        throw new Error('AI gagal mengekstrak teks.');
     }
 
     return { success: true, data: result, error: null };
   } catch (error) {
-    console.error('Error in transcribeAndExtract:', error);
-    const errorMessage = error instanceof Error ? error.message : 'An unknown server error occurred.';
+    console.error('Kesalahan dalam transcribeAndExtract:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan server yang tidak diketahui.';
     return { success: false, data: null, error: errorMessage };
   }
 }
@@ -51,12 +51,12 @@ export async function summarize(
     };
     const result = await summarizeMeetingMinutes(input);
      if (!result || !result.summary) {
-        throw new Error('AI failed to generate summary.');
+        throw new Error('AI gagal menghasilkan ringkasan.');
     }
     return { success: true, data: result, error: null };
   } catch (error) {
-    console.error('Error in summarize:', error);
-    const errorMessage = error instanceof Error ? error.message : 'An unknown server error occurred.';
+    console.error('Kesalahan dalam summarize:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan server yang tidak diketahui.';
     return { success: false, data: null, error: errorMessage };
   }
 }

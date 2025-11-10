@@ -14,12 +14,6 @@ type SummaryDisplayProps = {
   targetLanguage: 'id' | 'ar' | 'en';
 };
 
-const languageNames = {
-  id: 'Indonesian',
-  ar: 'Arabic',
-  en: 'English',
-};
-
 const languageTitles = {
     id: 'Bahasa Indonesia',
     ar: 'اللغة العربية',
@@ -32,15 +26,15 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage }: Su
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({
-      title: 'Copied to Clipboard',
-      description: `Summary has been copied.`,
+      title: 'Tersalin ke Papan Klip',
+      description: `Ringkasan telah berhasil disalin.`,
     });
   };
 
   const handleDownload = (format: 'PDF' | 'DOCX') => {
     toast({
-      title: 'Feature Not Implemented',
-      description: `Downloading as ${format} is not yet available.`,
+      title: 'Fitur Belum Tersedia',
+      description: `Pengunduhan dalam format ${format} belum dapat dilakukan saat ini.`,
       variant: 'default',
     });
   };
@@ -49,16 +43,16 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage }: Su
     <div className="w-full space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline text-2xl">Generated Summary</CardTitle>
-          <p className="text-sm text-muted-foreground">Source: {originalFilename}</p>
+          <CardTitle className="font-headline text-2xl">Hasil Ringkasan</CardTitle>
+          <p className="text-sm text-muted-foreground">Sumber: {originalFilename}</p>
           <div className="flex items-center space-x-2 pt-2">
             <Button variant="outline" size="sm" onClick={() => handleDownload('PDF')}>
               <Download className="mr-2 h-4 w-4" />
-              Download PDF
+              Unduh PDF
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleDownload('DOCX')}>
               <Download className="mr-2 h-4 w-4" />
-              Download DOCX
+              Unduh DOCX
             </Button>
           </div>
         </CardHeader>
@@ -71,6 +65,7 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage }: Su
               variant="ghost"
               size="icon"
               onClick={() => handleCopy(summary.summary)}
+              aria-label="Salin Ringkasan"
             >
               <Copy className="h-4 w-4" />
             </Button>

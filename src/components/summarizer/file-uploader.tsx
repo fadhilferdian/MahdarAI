@@ -62,8 +62,6 @@ export function FileUploader({
         setUploadProgress(progress);
       });
       
-      // After upload (reading file) is complete, we show "processing"
-      // before calling the AI.
       setUploadProgress(null); 
 
       const result = await transcribeAndExtract(dataUri, file.name);
@@ -71,12 +69,12 @@ export function FileUploader({
       if (result.success && result.data) {
         onProcessingSuccess(result.data, file.name);
       } else {
-        const errorMessage = result.error || 'An unknown error occurred.';
+        const errorMessage = result.error || 'Terjadi kesalahan yang tidak diketahui.';
         setError(errorMessage);
         onProcessingError(errorMessage);
       }
     } catch (e: any) {
-        const errorMessage = e.message || 'Failed to read the file.';
+        const errorMessage = e.message || 'Gagal membaca file.';
         setError(errorMessage);
         onProcessingError(errorMessage);
     } finally {
@@ -116,7 +114,6 @@ export function FileUploader({
     if (file) {
       handleFile(file);
     }
-    // Reset file input value to allow uploading the same file again
     if(fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -147,7 +144,7 @@ export function FileUploader({
         <div className="flex flex-col items-center text-center w-full">
           {uploadProgress !== null ? (
             <>
-              <p className="font-semibold">Mengunggah File...</p>
+              <p className="font-semibold">Mengunggah Berkas...</p>
               <p className="text-sm text-muted-foreground mt-1 truncate max-w-xs">{fileName}</p>
               <Progress value={uploadProgress} className="w-full max-w-xs mt-4" />
               <p className="text-sm font-semibold mt-2">{uploadProgress}%</p>
@@ -155,9 +152,9 @@ export function FileUploader({
           ) : (
             <>
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
-              <p className="mt-4 font-semibold">Processing File</p>
+              <p className="mt-4 font-semibold">Sedang Memproses Berkas</p>
               <p className="text-sm text-muted-foreground mt-1 truncate max-w-xs">{fileName}</p>
-              <p className="text-sm text-muted-foreground mt-2">This may take a few moments...</p>
+              <p className="text-sm text-muted-foreground mt-2">Proses ini mungkin memerlukan beberapa saat...</p>
             </>
           )}
         </div>
@@ -165,10 +162,10 @@ export function FileUploader({
         <div className="flex flex-col items-center text-center">
           <UploadCloud className="h-12 w-12 text-muted-foreground" />
           <p className="mt-4 font-semibold">
-            Drag & drop your file here or click to upload
+            Seret & lepas berkas di sini atau klik untuk mengunggah
           </p>
           <p className="text-sm text-muted-foreground mt-1">
-            Supported formats: .mp3, .wav, .m4a, .pdf, .docx
+            Format yang didukung: .mp3, .wav, .m4a, .pdf, .docx
           </p>
           {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
         </div>
