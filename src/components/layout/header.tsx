@@ -14,7 +14,7 @@ export default function Header() {
           </span>
         </Link>
         <div className="absolute left-1/2 -translate-x-1/2">
-           <p className="hidden text-sm text-muted-foreground font-arabic italic md:block">
+           <p className="hidden text-sm text-muted-foreground font-arabic md:block">
             "من الصوت أو المستند إلى المحضر الذكي"
           </p>
         </div>
