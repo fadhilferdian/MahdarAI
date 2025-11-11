@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -134,11 +135,11 @@ export default function MainPanel() {
 
   return (
     <div className="container py-8 w-full h-full">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
         {/* Input Column */}
         <div className="flex flex-col space-y-6">
-          <Card className="flex-grow">
+          <Card>
             <CardHeader>
                 <CardTitle className="font-headline text-2xl">Upload File atau Tulis Di sini</CardTitle>
             </CardHeader>

@@ -3,7 +3,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Copy, Download, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -45,7 +44,7 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLo
   const renderContent = () => {
     if (isLoading && !summary) {
       return (
-        <div className="flex flex-col items-center justify-center h-full text-center p-8">
+        <div className="flex flex-col items-center justify-center h-full text-center p-8 min-h-[300px]">
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
             <p className="mt-4 font-semibold">Sedang Membuat Ringkasan...</p>
             <p className="text-sm text-muted-foreground mt-1">Sedang diproses, silahkan seruput kopi anda...</p>
@@ -55,7 +54,7 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLo
 
     if (!summary) {
         return (
-            <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground p-8">
+            <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground p-8 min-h-[300px]">
                 <FileText className="h-16 w-16 mb-4" />
                 <h3 className="font-semibold text-lg">Hasil Ringkasan Anda</h3>
                 <p className="max-w-xs">Hasil ringkasan akan ditampilkan di sini setelah Anda memproses sebuah berkas atau teks.</p>
@@ -121,18 +120,15 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLo
                         </Button>
                     </div>
                     <CardContent className="p-0">
-                        <ScrollArea className="h-[450px] lg:h-[calc(100vh-24rem)]">
                         <div
                             className={`prose prose-sm dark:prose-invert max-w-none p-6`}
                             style={{ 
-                              fontFamily: targetLanguage === 'ar' ? "'Cairo', sans-serif" : 'inherit',
                               whiteSpace: 'pre-line' 
                             }}
                             dir={targetLanguage === 'ar' ? 'rtl' : 'ltr'}
                         >
                             {summary.summary}
                         </div>
-                        </ScrollArea>
                     </CardContent>
                 </div>
             </div>
@@ -141,7 +137,7 @@ export function SummaryDisplay({ summary, originalFilename, targetLanguage, isLo
   }
 
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="flex flex-col">
       {renderContent()}
     </Card>
   );
