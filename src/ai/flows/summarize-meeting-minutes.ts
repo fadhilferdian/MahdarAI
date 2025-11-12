@@ -49,27 +49,49 @@ const prompt = ai.definePrompt({
   Create a summary of the following meeting minutes in {{targetLanguage}}.
 
   The summary must strictly follow this structure, translated to the {{targetLanguage}}:
-  - The heading for the conclusion section must be 'KESIMPULAN' (for Indonesian), 'الخلاصة' (for Arabic), or 'CONCLUSIONS' (for English).
-  - The heading for the action items section must be 'المهام المطلوبة' (for Arabic), or 'ACTION ITEMS' (for Indonesian and English).
+  - The heading for the agenda section must be 'AGENDA RAPAT' (for Indonesian), 'جدول الأعمال' (for Arabic), or 'MEETING AGENDA' (for English).
+  - The heading for the discussion points section must be 'POIN PEMBAHASAN' (for Indonesian), 'نقاط النقاش' (for Arabic), or 'DISCUSSION POINTS' (for English).
+  - The heading for the action items section must be 'ACTION ITEMS' (for Indonesian), 'المهام المطلوبة' (for Arabic), or 'ACTION ITEMS' (for English).
   - Each heading MUST be followed by a numbered list (e.g., 1., 2., 3. or ١., ٢., ٣. for Arabic).
 
   Structure example in Indonesian (Strictly follow this formatting with newlines):
-KESIMPULAN
-1. Poin pertama kesimpulan.
-2. Poin kedua kesimpulan.
+AGENDA RAPAT
+1. Pembukaan dan perkenalan.
+2. Pembahasan proyek X.
+
+POIN PEMBAHASAN
+1. Progres proyek X mencapai 50%.
+2. Ditemukan kendala pada bagian integrasi API.
 
 ACTION ITEMS
-1. Tindakan pertama yang harus dilakukan.
-2. Tindakan kedua yang harus dilakukan.
+1. Tim teknis segera memperbaiki masalah API.
+2. Manajer proyek menyiapkan laporan progres terbaru.
 
   Structure example in Arabic (Strictly follow this formatting with newlines):
-الخلاصة
-١. النقطة الأولى في الخلاصة.
-٢. النقطة الثانية في الخلاصة.
+جدول الأعمال
+١. الافتتاح والتعارف.
+٢. مناقشة مشروع X.
+
+نقاط النقاش
+١. تقدم مشروع X وصل إلى 50٪.
+٢. تم العثور على عقبة في جزء تكامل واجهة برمجة التطبيقات.
 
 المهام المطلوبة
-١. المهمة الأولى المطلوبة.
-٢. المهمة الثانية المطلوبة.
+١. يقوم الفريق الفني بإصلاح مشكلة واجهة برمجة التطبيقات على الفور.
+٢. يقوم مدير المشروع بإعداد أحدث تقرير مرحلي.
+
+  Structure example in English (Strictly follow this formatting with newlines):
+MEETING AGENDA
+1. Opening and introductions.
+2. Discussion of project X.
+
+DISCUSSION POINTS
+1. Project X progress has reached 50%.
+2. An obstacle was found in the API integration part.
+
+ACTION ITEMS
+1. The technical team to fix the API issue immediately.
+2. The project manager to prepare the latest progress report.
 
   Text to summarize: {{{text}}} `,
 });
