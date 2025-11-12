@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2 } from 'lucide-react';
+import { Loader2, FileUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { SummarizeMeetingMinutesOutput, TranscribeAudioAndExtractTextOutput } from '@/lib/types';
 import { summarize } from '@/lib/actions';
@@ -141,7 +141,10 @@ export default function MainPanel() {
         <div className="flex flex-col space-y-6">
           <Card>
             <CardHeader>
-                <CardTitle className="font-headline text-2xl">Upload File atau Tulis Di sini</CardTitle>
+                <CardTitle className="font-headline text-2xl flex items-center gap-2">
+                  <FileUp className="h-6 w-6 text-primary" />
+                  Upload File atau Tulis Di sini
+                </CardTitle>
             </CardHeader>
             <CardContent>
               <Tabs 
