@@ -172,6 +172,7 @@ export default function MainPanel() {
                             value={extractedText}
                             onChange={(e) => handleDirectTextChange(e.target.value)}
                             disabled={isProcessing}
+                            className="min-h-[250px]"
                         />
                     </div>
                 </TabsContent>
