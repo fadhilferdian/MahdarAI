@@ -1,7 +1,10 @@
+
 'use client';
 
 import Link from 'next/link';
 import { Logo } from '@/components/icons/logo';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
 
 export default function Header() {
   return (
@@ -13,13 +16,13 @@ export default function Header() {
             Mahdar AI
           </span>
         </Link>
-        <div className="absolute left-1/2 -translate-x-1/2">
-           <p className="hidden text-sm text-muted-foreground font-arabic md:block">
-            "من الصوت أو المستند إلى المحضر الذكي"
-          </p>
-        </div>
+        
         <div className="flex items-center justify-end space-x-4">
-          {/* Placeholder for future elements */}
+          <Button asChild>
+            <Link href="/summarizer">
+              Coba Sekarang <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
         </div>
       </div>
     </header>

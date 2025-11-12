@@ -7,8 +7,8 @@ import './globals.css';
 
 
 export const metadata: Metadata = {
-  title: 'Mahdar AI',
-  description: 'Dari rekaman atau dokumen menjadi notulensi rapat yang cerdas.',
+  title: 'Mahdar AI - Ringkas Rapat Cerdas Lintas Bahasa',
+  description: 'Ubah rekaman, dokumen, atau catatan rapat menjadi ringkasan cerdas dalam Bahasa Indonesia, Inggris, dan Arab. Gratis, tanpa login.',
 };
 
 
@@ -27,9 +27,9 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="font-body antialiased min-h-screen flex flex-col bg-background">
+      <body className="font-body antialiased flex flex-col bg-background">
         <Header />
-        <main className="flex-grow flex items-center justify-center">{children}</main>
+        <main className="flex-grow">{children}</main>
         <Footer />
         <Toaster />
       </body>
