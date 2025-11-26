@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 
 export function ComparisonSection() {
   return (
-    <section id="comparison" className="w-full py-20 md:py-32">
+    <section id="comparison" className="w-full py-20 md:py-32 flex items-center">
       <div className="container px-4 md:px-6">
         <div className="mx-auto max-w-3xl text-center mb-12">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">

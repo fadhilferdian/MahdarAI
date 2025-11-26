@@ -27,7 +27,7 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="w-full py-20 md:py-32">
+    <section id="features" className="w-full py-20 md:py-32 flex items-center">
       <div className="container px-4 md:px-6">
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
           {features.map((feature, index) => (

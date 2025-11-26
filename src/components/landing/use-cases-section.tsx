@@ -22,7 +22,7 @@ const useCases = [
 
 export function UseCasesSection() {
   return (
-    <section id="use-cases" className="w-full py-20 md:py-32 bg-card">
+    <section id="use-cases" className="w-full py-20 md:py-32 bg-card flex items-center">
       <div className="container px-4 md:px-6">
         <div className="mx-auto max-w-3xl text-center mb-12">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">
