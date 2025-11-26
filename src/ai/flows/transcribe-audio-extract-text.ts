@@ -37,7 +37,7 @@ const transcribeAudioAndExtractTextPrompt = ai.definePrompt({
   name: 'transcribeAudioAndExtractTextPrompt',
   input: {schema: TranscribeAudioAndExtractTextInputSchema},
   output: {schema: TranscribeAudioAndExtractTextOutputSchema},
-  model: googleAI.model('gemini-1.5-flash'),
+  model: googleAI.model('googleai/gemini-1.5-flash'),
   prompt: `You are a helpful assistant designed to extract text from files and detect the language.
 
   Extract the text from the file and detect whether the language is Arabic, Indonesian, or English. Return the extracted text and the detected language.
