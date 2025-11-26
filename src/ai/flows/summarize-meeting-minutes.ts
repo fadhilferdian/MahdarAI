@@ -10,7 +10,6 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import {googleAI} from '@genkit-ai/google-genai';
 
 const SummarizeMeetingMinutesInputSchema = z.object({
   text: z
@@ -41,7 +40,6 @@ const prompt = ai.definePrompt({
   name: 'summarizeMeetingMinutesPrompt',
   input: {schema: SummarizeMeetingMinutesInputSchema},
   output: {schema: SummarizeMeetingMinutesOutputSchema},
-  model: googleAI.model('googleai/gemini-1.5-flash'),
   prompt: `You are an AI expert in creating summaries of meeting minutes.
 
   The input text is in {{sourceLanguage}}.
