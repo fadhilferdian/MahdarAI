@@ -5,7 +5,7 @@ import { ArrowRight, FileText, Languages, ShieldCheck, Zap } from 'lucide-react'
 
 export function HeroSection() {
   return (
-    <section className="w-full py-20 md:py-32 lg:py-40 bg-card flex items-center">
+    <section className="w-full py-20 md:py-32 lg:py-40 bg-card flex items-center justify-center">
       <div className="container px-4 md:px-6">
         <div className="grid gap-6 lg:grid-cols-1 lg:gap-12 xl:grid-cols-1">
           <div className="flex flex-col justify-center space-y-4 text-center">

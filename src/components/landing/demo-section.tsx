@@ -5,7 +5,7 @@ import { ArrowRight } from 'lucide-react';
 
 export default function DemoSection() {
   return (
-    <section id="demo" className="w-full py-20 md:py-32 bg-card flex items-center">
+    <section id="demo" className="w-full py-20 md:py-32 bg-card flex items-center justify-center">
       <div className="container text-center">
         <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline mb-4">
           Coba Sekarang Tanpa Daftar
