@@ -41,7 +41,7 @@ const prompt = ai.definePrompt({
   name: 'summarizeMeetingMinutesPrompt',
   input: {schema: SummarizeMeetingMinutesInputSchema},
   output: {schema: SummarizeMeetingMinutesOutputSchema},
-  model: googleAI.model('gemini-2.5-flash'),
+  model: googleAI.model('gemini-1.5-flash'),
   prompt: `You are an AI expert in creating summaries of meeting minutes.
 
   The input text is in {{sourceLanguage}}.
